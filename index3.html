@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>خداع الأنسنة — كيف يعمل المحوّل؟ وهل هو ذكاء حقًا؟</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans-arabic/400.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans-arabic/500.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans-arabic/700.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-kufi-arabic/700.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-kufi-arabic/800.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono/400.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono/600.css">
+<style>
+:root{
+  --bg:#0a0d13; --bg2:#0d1220; --panel:#121826; --panel2:#161d2e;
+  --line:rgba(227,180,92,.16); --line2:rgba(255,255,255,.08);
+  --gold:#e3b45c; --gold2:#f0d08a; --teal:#5ad1b3; --red:#e57368; --blue:#7fb4ff;
+  --ink:#e9ecf3; --mut:#9aa5ba; --mut2:#6d7890;
+  --mono:'JetBrains Mono',monospace; --ar:'IBM Plex Sans Arabic',sans-serif; --kufi:'Noto Kufi Arabic',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--ar);line-height:1.9;overflow-x:hidden;
+  background-image:radial-gradient(1200px 500px at 85% -100px, rgba(227,180,92,.07), transparent 60%),
+  radial-gradient(900px 400px at 10% 30%, rgba(90,209,179,.04), transparent 60%);}
+::selection{background:rgba(227,180,92,.35)}
+.wrap{max-width:1160px;margin:0 auto;padding:0 22px}
+h1,h2,h3{font-family:var(--kufi)}
+a{color:var(--gold);text-decoration:none}
+b,strong{color:var(--gold2)}
+.mono{font-family:var(--mono)}
+.gold{color:var(--gold)}
+.teal{color:var(--teal)}
+.red{color:var(--red)}
+
+/* progress + nav */
+#pbar{position:fixed;top:0;right:0;height:3px;background:linear-gradient(90deg,var(--teal),var(--gold));width:0;z-index:60}
+nav{position:sticky;top:0;z-index:50;background:rgba(10,13,19,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line2)}
+.nav-in{display:flex;align-items:center;gap:18px;padding:14px 22px;max-width:1160px;margin:0 auto}
+.logo{font-family:var(--kufi);font-weight:800;color:var(--gold);font-size:1.05rem;white-space:nowrap}
+.logo span{color:var(--mut);font-weight:400;font-size:.8rem}
+.nav-links{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin-inline-start:auto}
+.nav-links::-webkit-scrollbar{display:none}
+.nav-links a{color:var(--mut);font-size:.85rem;padding:6px 12px;border-radius:99px;white-space:nowrap;transition:.25s}
+.nav-links a:hover{color:var(--gold2);background:rgba(227,180,92,.08)}
+
+/* hero */
+.hero{padding:70px 0 30px;position:relative}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:44px;align-items:center}
+.chips{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.chip{border:1px solid var(--line);border-radius:99px;padding:4px 14px;font-size:.78rem;color:var(--mut)}
+.chip-gold{background:rgba(227,180,92,.12);color:var(--gold2);border-color:rgba(227,180,92,.4)}
+h1{font-size:clamp(2.2rem,5.4vw,3.6rem);font-weight:800;line-height:1.35;color:#fff}
+.hero-en{font-family:var(--mono);color:var(--mut2);font-size:.85rem;letter-spacing:.14em;margin:6px 0 18px;direction:ltr;text-align:right}
+.lead{color:var(--mut);font-size:1.02rem;max-width:56ch}
+.hero-cta{display:flex;gap:12px;margin-top:26px;flex-wrap:wrap}
+.btn{padding:11px 22px;border-radius:12px;font-weight:700;font-size:.92rem;transition:.25s;display:inline-block}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#c99640);color:#14100a;box-shadow:0 8px 24px rgba(227,180,92,.25)}
+.btn-gold:hover{transform:translateY(-2px)}
+.btn-ghost{border:1px solid var(--line);color:var(--gold2)}
+.btn-ghost:hover{background:rgba(227,180,92,.08)}
+.hero-fig{position:relative}
+.hero-fig img{width:100%;border-radius:20px;border:1px solid var(--line);box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.hero-fig figcaption{color:var(--mut2);font-size:.78rem;margin-top:10px;text-align:center}
+
+/* stat band */
+.statband{margin-top:56px;border-block:1px solid var(--line);background:rgba(227,180,92,.04);display:grid;grid-template-columns:repeat(6,1fr)}
+.stat{padding:18px 10px;text-align:center;border-inline-start:1px dashed var(--line)}
+.stat:first-child{border-inline-start:none}
+.stat b{display:block;font-family:var(--mono);color:var(--gold2);font-size:1.25rem;direction:ltr}
+.stat span{font-size:.72rem;color:var(--mut)}
+
+/* sections */
+.sec{padding:80px 0 20px}
+.sec-head{display:flex;gap:18px;align-items:flex-start;margin-bottom:34px}
+.sec-num{font-family:var(--kufi);font-weight:800;font-size:2.4rem;color:transparent;-webkit-text-stroke:1px rgba(227,180,92,.55);line-height:1}
+.sec-head h2{font-size:clamp(1.4rem,3vw,2rem);color:#fff}
+.sec-sub{color:var(--mut);font-size:.95rem;max-width:70ch}
+.card{background:var(--panel);border:1px solid var(--line2);border-radius:16px;padding:24px;transition:.3s}
+.card:hover{border-color:var(--line);transform:translateY(-3px)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+
+/* question cards */
+.qcard{position:relative;overflow:hidden}
+.qcard .qicon{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;margin-bottom:14px;background:rgba(227,180,92,.1);border:1px solid var(--line)}
+.qcard h3{color:var(--gold2);font-size:1.2rem;margin-bottom:10px}
+.qcard .src{font-size:.86rem;color:var(--mut);margin-bottom:10px;padding-inline-start:12px;border-inline-start:2px solid var(--line)}
+.qcard .verdict{margin-top:14px;padding:12px 14px;border-radius:10px;background:rgba(90,209,179,.07);border:1px dashed rgba(90,209,179,.35);color:var(--teal);font-size:.9rem;font-weight:700}
+
+/* architecture flow */
+.flow{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap;justify-content:center;margin:26px 0}
+.fbox{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:14px 18px;text-align:center;min-width:130px}
+.fbox b{display:block;color:var(--gold2);font-size:.95rem}
+.fbox span{font-size:.75rem;color:var(--mut)}
+.farrow{align-self:center;color:var(--mut2);font-size:1.3rem}
+.fstack{border:1px solid var(--line);border-radius:14px;padding:12px;background:rgba(227,180,92,.05);display:flex;flex-direction:column;gap:8px;min-width:170px}
+.fstack .fbox{min-width:0;padding:8px 12px}
+.fstack .tag{font-family:var(--mono);color:var(--teal);font-size:.72rem;text-align:center;direction:ltr}
+
+/* steps */
+.step{display:grid;grid-template-columns:56px 1fr;gap:18px;margin-bottom:26px}
+.step-n{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-family:var(--kufi);font-weight:800;font-size:1.3rem;color:var(--gold);background:rgba(227,180,92,.08);border:1px solid var(--line)}
+.step h3{color:#fff;font-size:1.12rem;margin-bottom:8px}
+.step p{color:var(--mut);font-size:.95rem}
+.formula{direction:ltr;text-align:center;font-family:var(--mono);background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px;color:var(--gold2);margin:14px 0;font-size:.95rem;overflow-x:auto}
+
+/* interactive demos */
+.demo{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;margin-top:16px}
+.demo-title{font-family:var(--kufi);font-weight:700;color:var(--gold2);margin-bottom:6px}
+.demo-note{font-size:.78rem;color:var(--mut2);margin-bottom:14px}
+.tk{font-family:var(--ar);font-size:1rem;color:var(--ink);border:1px solid var(--line2);border-radius:10px;padding:8px 14px;margin:4px;cursor:pointer;transition:.25s}
+.tk:hover{border-color:var(--gold)}
+.tk-focus{outline:2px solid var(--gold);color:var(--gold2)}
+.attnrow{display:grid;grid-template-columns:90px 1fr 52px;gap:12px;align-items:center;margin:7px 0}
+.attnrow-name{font-size:.9rem;color:var(--mut)}
+.attnrow-name.me{color:var(--gold2);font-weight:700}
+.attnrow-track{height:10px;background:rgba(255,255,255,.05);border-radius:99px;overflow:hidden}
+.attnrow-fill{display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--gold));border-radius:99px;transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.attnrow-val{font-family:var(--mono);font-size:.78rem;color:var(--teal);direction:ltr;text-align:left}
+.slider-row{display:grid;grid-template-columns:110px 1fr 70px;gap:14px;align-items:center;margin:10px 0}
+.slider-row label{font-size:.88rem;color:var(--mut)}
+input[type=range]{width:100%;accent-color:var(--gold)}
+.sm-track{height:14px;background:rgba(255,255,255,.05);border-radius:99px;overflow:hidden}
+.sm-fill{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .3s}
+.sm-val{font-family:var(--mono);font-size:.8rem;color:var(--gold2);direction:ltr;text-align:left}
+.toggle{display:flex;align-items:center;gap:10px;margin-top:14px;color:var(--mut);font-size:.88rem;cursor:pointer;user-select:none}
+.toggle input{accent-color:var(--teal);width:18px;height:18px}
+canvas{width:100%;border-radius:12px;background:var(--panel2);border:1px solid var(--line2);display:block}
+
+/* table */
+.tbl{width:100%;border-collapse:collapse;font-size:.86rem;margin-top:14px}
+.tbl th{color:var(--gold2);font-weight:700;padding:10px;border-bottom:1px solid var(--line);text-align:right}
+.tbl td{padding:10px;border-bottom:1px solid var(--line2);color:var(--mut)}
+.tbl td:first-child{color:var(--ink);font-weight:700}
+.tbl .mono{direction:ltr;display:inline-block;font-size:.8rem;color:var(--teal)}
+
+/* vnd */
+.rings{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+.ring{flex:1;min-width:150px;border-radius:12px;padding:12px;text-align:center;font-size:.82rem}
+.ring b{display:block}
+.ring-os{background:rgba(229,115,104,.08);border:1px solid rgba(229,115,104,.4);color:var(--red)}
+.ring-app{background:rgba(127,180,255,.07);border:1px solid rgba(127,180,255,.35);color:var(--blue)}
+.ring-user{background:rgba(90,209,179,.07);border:1px solid rgba(90,209,179,.35);color:var(--teal)}
+.ring-mix{background:rgba(227,180,92,.08);border:1px dashed rgba(227,180,92,.5);color:var(--gold2)}
+.fixlist{list-style:none;margin-top:16px}
+.fixlist li{padding:10px 14px;border-radius:10px;background:var(--panel2);border:1px solid var(--line2);margin-bottom:8px;color:var(--mut);font-size:.92rem}
+.fixlist li b{color:var(--teal)}
+
+/* flip cards */
+.flip{perspective:1200px;height:170px;cursor:pointer}
+.flip-inner{position:relative;width:100%;height:100%;transition:transform .65s;transform-style:preserve-3d}
+.flip.flipped .flip-inner{transform:rotateY(180deg)}
+.flip-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:14px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;padding:16px;text-align:center}
+.flip-front{background:var(--panel2);border:1px solid var(--line)}
+.flip-front .stmt{font-weight:700;color:var(--ink)}
+.flip-front small{color:var(--mut2);font-size:.74rem}
+.flip-back{transform:rotateY(180deg)}
+.flip-back.good{background:rgba(90,209,179,.08);border:1px solid rgba(90,209,179,.4)}
+.flip-back.bad{background:rgba(229,115,104,.08);border:1px solid rgba(229,115,104,.4)}
+.flip-back b{font-size:1rem}
+.flip-back p{font-size:.8rem;color:var(--mut)}
+
+/* wrapper layers */
+.layer{border-radius:16px;padding:22px 24px;margin-bottom:14px;position:relative}
+.layer .stamp{position:absolute;top:16px;left:18px;font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;border:1px solid currentColor;border-radius:6px;padding:2px 8px;opacity:.8;direction:ltr}
+.layer h3{font-size:1.1rem;margin-bottom:8px}
+.layer p{color:var(--mut);font-size:.93rem}
+.l1{background:rgba(229,115,104,.06);border:1px solid rgba(229,115,104,.3)}
+.l1 h3{color:var(--red)}
+.l2{background:rgba(127,180,255,.05);border:1px solid rgba(127,180,255,.28)}
+.l2 h3{color:var(--blue)}
+.l3{background:rgba(90,209,179,.06);border:1px solid rgba(90,209,179,.35)}
+.l3 h3{color:var(--teal)}
+
+/* build */
+.repo{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px}
+.repo .card h3{font-family:var(--mono);direction:ltr;text-align:right;color:var(--gold2);font-size:1rem}
+.repo .what{color:var(--mut);font-size:.86rem;margin:10px 0}
+.repo .cmd{direction:ltr;text-align:left;font-family:var(--mono);font-size:.74rem;background:#0a0e16;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;color:var(--teal);overflow-x:auto;white-space:pre}
+.codewrap{position:relative;margin:14px 0}
+.codewrap .chead{display:flex;justify-content:space-between;align-items:center;background:var(--panel2);border:1px solid var(--line2);border-bottom:none;border-radius:12px 12px 0 0;padding:8px 14px}
+.chead .cname{font-family:var(--mono);font-size:.78rem;color:var(--gold2);direction:ltr}
+.copybtn{background:none;border:1px solid var(--line);color:var(--mut);border-radius:8px;padding:3px 12px;font-size:.74rem;cursor:pointer;font-family:var(--ar);transition:.2s}
+.copybtn:hover{color:var(--gold2);border-color:var(--gold)}
+pre{direction:ltr;text-align:left;background:#0a0e16;border:1px solid var(--line2);border-radius:0 0 12px 12px;padding:16px;overflow-x:auto;font-family:var(--mono);font-size:.8rem;line-height:1.75;color:#d7dce8}
+.c-kw{color:#f0d08a}.c-str{color:#9ad9a0}.c-com{color:#5b6478;font-style:italic}.c-num{color:#7fb4ff}.c-slf{color:#e57368}
+
+/* gate demo */
+.gate-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
+.gate-grid img{width:100%;border-radius:16px;border:1px solid var(--line)}
+select{width:100%;background:var(--panel2);color:var(--ink);border:1px solid var(--line2);border-radius:10px;padding:10px;font-family:var(--ar);font-size:.9rem;margin:10px 0}
+.gate-out{margin-top:12px;border-radius:12px;padding:14px;font-size:.88rem;display:none}
+.gate-out.show{display:block;animation:pop .35s}
+.gate-out.allow{background:rgba(90,209,179,.08);border:1px solid rgba(90,209,179,.4);color:var(--teal)}
+.gate-out.deny{background:rgba(229,115,104,.08);border:1px solid rgba(229,115,104,.4);color:var(--red)}
+.gate-out .hash{font-family:var(--mono);font-size:.7rem;color:var(--mut);direction:ltr;text-align:left;word-break:break-all;margin-top:8px}
+@keyframes pop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* glossary */
+.gloss{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.gterm{background:var(--panel);border:1px solid var(--line2);border-radius:12px;padding:14px;transition:.25s}
+.gterm:hover{border-color:var(--line)}
+.gterm b{display:block;color:var(--gold2);font-size:.88rem;margin-bottom:4px}
+.gterm .en{font-family:var(--mono);font-size:.66rem;color:var(--mut2);direction:ltr;display:block;text-align:right;margin-bottom:6px}
+.gterm p{font-size:.76rem;color:var(--mut);line-height:1.7}
+
+/* friction */
+.friction-list{list-style:none;counter-reset:fr}
+.friction-list li{counter-increment:fr;display:flex;gap:14px;align-items:flex-start;padding:14px 16px;border-radius:12px;background:var(--panel);border:1px solid var(--line2);margin-bottom:10px;color:var(--mut);font-size:.93rem}
+.friction-list li::before{content:counter(fr,arabic-indic);font-family:var(--kufi);color:var(--gold);font-weight:800;min-width:30px;height:30px;border-radius:9px;background:rgba(227,180,92,.1);border:1px solid var(--line);display:grid;place-items:center;font-size:.9rem}
+.quote{border-inline-start:3px solid var(--gold);background:rgba(227,180,92,.05);border-radius:0 14px 14px 0;padding:18px 22px;margin:22px 0;color:var(--gold2);font-family:var(--kufi);font-size:1.05rem;line-height:2}
+.quote small{display:block;color:var(--mut2);font-family:var(--ar);font-size:.75rem;margin-top:6px}
+
+/* disclosure */
+.disclose{display:grid;grid-template-columns:.9fr 1.1fr;gap:26px;align-items:center}
+.disclose img{width:100%;border-radius:16px;border:1px solid var(--line)}
+
+footer{border-top:1px solid var(--line);margin-top:80px;padding:34px 0 44px;color:var(--mut2);font-size:.8rem}
+footer b{color:var(--mut)}
+
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease}
+.reveal.in{opacity:1;transform:none}
+
+@media(max-width:960px){
+  .hero-grid,.grid3,.repo,.gate-grid,.disclose{grid-template-columns:1fr}
+  .grid2{grid-template-columns:1fr}
+  .gloss{grid-template-columns:repeat(2,1fr)}
+  .statband{grid-template-columns:repeat(3,1fr)}
+  .stat:nth-child(4){border-inline-start:none}
+}
+@media(max-width:560px){
+  .gloss{grid-template-columns:1fr}
+  .step{grid-template-columns:1fr}
+  .statband{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div id="pbar"></div>
+
+<nav>
+  <div class="nav-in">
+    <div class="logo">خِداع الأُنسَنَة <span>· تقرير هندسي</span></div>
+    <div class="nav-links">
+      <a href="#questions">الأسئلة الثلاثة</a>
+      <a href="#how">كيف يعمل؟</a>
+      <a href="#vnd">عيب فون نويمان</a>
+      <a href="#truth">الطلاقة ≠ الحقيقة</a>
+      <a href="#wrapper">طبقات الوهم</a>
+      <a href="#build">ابنِ بنفسك</a>
+      <a href="#friction">الفرملة</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="chips">
+        <span class="chip chip-gold">قراءة هندسية سيادية</span>
+        <span class="chip">بدون حشو · بدون اتهامات</span>
+        <span class="chip">بالأرقام والكود</span>
+      </div>
+      <h1>القناعُ يتكلّم…<br>فهل هو <span class="gold">عقل</span>؟</h1>
+      <p class="hero-en">THE ANTHROPOMORPHISM DECEPTION — A SOVEREIGN TECHNICAL READING</p>
+      <p class="lead">دمجٌ هندسي بين ورقة <b>«Attention Is All You Need»</b> (الوثيقة التي أسّست لكل نماذج اللغة الحديثة) وتقرير <b>«The Wrapper Ledger»</b> لسليمان الشمري. حُذفت الاتهامات وبقيت العمارة: كيف يعمل المحوّل (Transformer) من الداخل، وما الجواب الحقيقي حين تسأل: <b class="gold">هل هو ذكاء؟ هل هو حقيقي؟ هل يبتكر؟</b></p>
+      <div class="hero-cta">
+        <a class="btn btn-gold" href="#questions">ابدأ بالأسئلة الثلاثة</a>
+        <a class="btn btn-ghost" href="#how">انزل إلى المحرّك</a>
+      </div>
+    </div>
+    <figure class="hero-fig">
+      <img src="https://image.qwenlm.ai/public_source/18e41612-ea6b-4fdf-b3de-4654208c4886/1cafc13c6-2272-4460-9776-c72fcc5f6f86.png" alt="قناع خزفي يتفكك إلى توكنات ذهبية وإيصالات">
+      <figcaption>القناع الخزفي يذوب إلى توكنات وإيصالات — الغلاف الأصلي للـ Ledger</figcaption>
+    </figure>
+  </div>
+  <div class="wrap">
+    <div class="statband reveal">
+      <div class="stat"><b>28.4</b><span>BLEU إنجليزي→ألماني (Big)</span></div>
+      <div class="stat"><b>41.0</b><span>BLEU إنجليزي→فرنسي</span></div>
+      <div class="stat"><b>12h</b><span>تدريب النموذج الأساسي · 8×P100</span></div>
+      <div class="stat"><b>6</b><span>طبقات مشفّر + 6 طبقات مفكّك</span></div>
+      <div class="stat"><b>512</b><span>بُعد التمثيل d_model</span></div>
+      <div class="stat"><b>8</b><span>رؤوس انتباه متوازية</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= ٠١ الأسئلة ================= -->
+<section id="questions" class="sec">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-num">٠١</span>
+      <div>
+        <h2>الأسئلة الثلاثة الكبيرة</h2>
+        <p class="sec-sub">قبل أي كود: ما الذي نتعامل معه فعلًا؟ الورقة تعطينا العمارة، والـ Ledger يعطينا التحذير. بينهما يأتي الجواب بلا مبالغة ولا تهوين.</p>
+      </div>
+    </div>
+    <div class="grid3">
+      <div class="card qcard reveal">
+        <div class="qicon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e3b45c" stroke-width="2"><path d="M12 3a6 6 0 0 1 6 6c0 2-1 3.5-2 4.5V16H8v-2.5C7 12.5 6 11 6 9a6 6 0 0 1 6-6z"/><path d="M9 19h6M10 22h4"/></svg></div>
+        <h3>هل هو ذكاء؟</h3>
+        <p class="src"><b>الورقة تقول:</b> النموذج انتباهٌ ذاتي + تنبؤ احتمالي بالكلمة التالية. لا رموز، لا منطق، لا «فهم» — أوزانٌ إحصائية تُوزَّع على التوكنات.</p>
+        <p class="src"><b>الـ Ledger يقول:</b> «الطلاقة بلا تحقّق» — النظام يُقيَّم بقدرته على إنتاج كلام مقنع، لا بصحّة ما يقول.</p>
+        <div class="verdict">الخلاصة: كفاءة لغوية إحصائية ≠ عقل. أداة قوية جدًا… لكنها لا «تعرف» شيئًا عمّا تقول.</div>
+      </div>
+      <div class="card qcard reveal">
+        <div class="qicon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#5ad1b3" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+        <h3>هل هو حقيقي؟</h3>
+        <p class="src"><b>الورقة تقول:</b> الرياضيات حقيقية: أوزان دُرّبت على 4.5 مليون جملة (إنجليزي-ألماني) و36 مليون (إنجليزي-فرنسي)، واحتمالات تُحسب فعلًا.</p>
+        <p class="src"><b>الـ Ledger يقول:</b> حين تنفصل المخرجات عن واقعٍ قابل للتحقق، يصل التفسير الشعبي إلى «قاعدة على المريخ تبحث عن الحقيقة» — سخريةٌ تكشف حجم الفجوة بين «الإحساس بالبشرية» والقدرة الموثّقة.</p>
+        <div class="verdict">الخلاصة: الرياضيات حقيقية. «الشخصية» تصميمُ واجهة. الحقيقي: الأوزان والأرقام. القناع: الصوت والاسم والمشاعر.</div>
+      </div>
+      <div class="card qcard reveal">
+        <div class="qicon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#7fb4ff" stroke-width="2"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/></svg></div>
+        <h3>هل يبتكر؟</h3>
+        <p class="src"><b>الورقة تقول:</b> توليدٌ ذاتي (Auto-regressive): كل كلمة تُنتَج خطوةً خطوة مع بحث شعاعي (Beam Search) — فيُنتج تتابعات لم يرها في التدريب.</p>
+        <p class="src"><b>الـ Ledger يقول:</b> نفس المحرك يفشل في تدقيق كودٍ فشلًا ذريعًا، ويتألق في كتابة نصٍّ مؤثر — الفرق في معيار التقييم: صحة ثنائية أم إقناع سلوكي.</p>
+        <div class="verdict">الخلاصة: إبداعٌ تركيبي موجود (تأليف جديد من أجزاء قديمة). إبداعٌ مقصود غير موجود — يعيد تركيب ما كتب البشر دون أن «يعيش» المعنى.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ٠٢ كيف يعمل ================= -->
+<section id="how" class="sec">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-num">٠٢</span>
+      <div>
+        <h2>المحرّك من الداخل: المحوّل (Transformer)</h2>
+        <p class="sec-sub">ورقة 2017 استبدلت الشبكات التكرارية (RNN) بالكامل بآلية الانتباه. لا تكرار، لا التفافات — انتباهٌ فقط. لهذا تُدرَّب بالتوازي وبسرعة.</p>
+      </div>
+    </div>
+
+    <div class="flow reveal">
+      <div class="fbox"><b>الإدخال</b><span>توكنات ← متجهات 512</span></div>
+      <span class="farrow">⟵</span>
+      <div class="fbox"><b>+ ترميز موضعي</b><span>جيب/جيب تمام</span></div>
+      <span class="farrow">⟵</span>
+      <div class="fstack">
+        <div class="fbox"><b>انتباه ذاتي متعدد الرؤوس</b><span>8 رؤوس</span></div>
+        <div class="fbox"><b>شبكة تغذية موضعية</b><span>512→2048→512</span></div>
+        <span class="tag">Encoder ×6</span>
+      </div>
+      <span class="farrow">⟵</span>
+      <div class="fstack">
+        <div class="fbox"><b>انتباه ذاتي مُقنَّع</b><span>يرى الماضي فقط</span></div>
+        <div class="fbox"><b>انتباه المشفّر-المفكّك</b><span>يسأل الذاكرة</span></div>
+        <div class="fbox"><b>تغذية موضعية</b><span>ثم Softmax</span></div>
+        <span class="tag">Decoder ×6</span>
+      </div>
+      <span class="farrow">⟵</span>
+      <div class="fbox"><b>الاحتمالات</b><span>الكلمة التالية</span></div>
+    </div>
+
+    <div class="step reveal">
+      <div class="step-n">١</div>
+      <div>
+        <h3>الكلمة تصير رقمًا (Embedding)</h3>
+        <p>كل توكن يتحول إلى متجه من 512 رقمًا. ذكاء التصميم: نفس مصفوفة الأوزان تُستخدم لتضمين الإدخال والإخراج ولطبقة الـ Softmax قبلها ضربٌ في √d<sub>model</sub> — توفيرٌ في Parameters واتساقٌ في التعلم.</p>
+      </div>
+    </div>
+
+    <div class="step reveal">
+      <div class="step-n">٢</div>
+      <div>
+        <h3>الترتيب لا يأتي مجانًا (Positional Encoding)</h3>
+        <p>بما أنه لا يوجد تكرار (RNN)، لا يعرف النموذج أن «الكتابَ» جاءت بعد «قرأَ». الحل: موجات جيب وجيب تمام بترددات مختلفة تُجمع مع التضمين. كل بُعدٍ موجةٌ، والأطوال الموجية متوالية هندسية من 2π حتى 10000·2π — فيتعلم النموذج «المسافة بين الكلمات» وحتى الاستدلال على مواضع لم يرها.</p>
+        <div class="formula">PE(pos, 2i) = sin(pos / 10000^(2i/d_model)) &nbsp;·&nbsp; PE(pos, 2i+1) = cos(pos / 10000^(2i/d_model))</div>
+        <div class="demo">
+          <div class="demo-title">مختبر تفاعلي: حرّك البُعد i وشاهد الموجة</div>
+          <div class="demo-note">كلما زاد i زاد الطول الموجي — الأبعاد الأولى تهتز بسرعة (ترتيب قريب)، والأبعاد الأخيرة موجات طويلة (ترتيب بعيد).</div>
+          <canvas id="peCanvas" height="220"></canvas>
+          <div class="slider-row" style="margin-top:14px">
+            <label>البُعد i = <span class="mono gold" id="peDimVal">0</span></label>
+            <input type="range" id="peDim" min="0" max="40" value="0">
+            <span class="mono teal" id="peWave" style="direction:ltr;text-align:left;font-size:.75rem"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step reveal">
+      <div class="step-n">٣</div>
+      <div>
+        <h3>الانتباه: من يلتفت لمن؟</h3>
+        <p>لكل كلمة ثلاثة أدوار: <b>سؤال (Query)</b> = عمّ أبحث؟، <b>لافتة (Key)</b> = بماذا أُعرّف نفسي؟، <b>حمولة (Value)</b> = ما الذي أحمله لمن يلتفت إليّ. نضرب الأسئلة في اللافتات، نقسم على √d<sub>k</sub> (لأن الضرب الخام يكبر مع البُعد فيدفع الـ Softmax لمناطق ميتة التدرج)، ثم Softmax، ثم مجموع مرجّح للحمولات.</p>
+        <div class="formula">Attention(Q, K, V) = softmax( QK<sup>T</sup> / √d<sub>k</sub> ) V</div>
+        <div class="demo">
+          <div class="demo-title">مختبر تفاعلي: اضغط أي كلمة وشاهد لمن «تلتفت»</div>
+          <div class="demo-note">أوزان توضيحية مقرَّبة لسلوك الانتباه في جملة عربية (ليست من نموذج حقيقي). لاحظ: الضمير في «كتبَهُ» يسحب الانتباه نحو صاحبه.</div>
+          <div id="attnChips" style="text-align:center"></div>
+          <p style="color:var(--mut);font-size:.88rem;margin:14px 0 8px">كلمة <b id="attnFocus"></b> تلتفت إلى:</p>
+          <div id="attnBars"></div>
+        </div>
+        <div class="demo">
+          <div class="demo-title">لماذا القسمة على √d<sub>k</sub>؟ جرّب بنفسك</div>
+          <div class="demo-note">حرّك ثلاثة مفاتيح (نتائج ضرب Q·K) وشاهد كيف يوزع الـ Softmax. ثم فعّل القسمة: التطرف «يُكبح» والتوزيع يلين — هذا هو سرّ الاستقرار في التدريب.</div>
+          <div class="slider-row"><label>مفتاح أ</label><input type="range" id="lg0" min="-5" max="5" step="0.1" value="3"><span class="sm-val" id="smVal0"></span></div>
+          <div class="sm-track" style="margin-bottom:10px"><span class="sm-fill" id="smFill0"></span></div>
+          <div class="slider-row"><label>مفتاح ب</label><input type="range" id="lg1" min="-5" max="5" step="0.1" value="1"><span class="sm-val" id="smVal1"></span></div>
+          <div class="sm-track" style="margin-bottom:10px"><span class="sm-fill" id="smFill1"></span></div>
+          <div class="slider-row"><label>مفتاح ج</label><input type="range" id="lg2" min="-5" max="5" step="0.1" value="-2"><span class="sm-val" id="smVal2"></span></div>
+          <div class="sm-track"><span class="sm-fill" id="smFill2"></span></div>
+          <label class="toggle"><input type="checkbox" id="scaleToggle"> فعّل القسمة على √d<sub>k</sub> (بافتراض d<sub>k</sub>=64)</label>
+          <p style="color:var(--mut2);font-size:.8rem;margin-top:10px">قاعدة الـ Ledger الهندسية هنا: <b class="gold">من يملك الوزن الأعلى… يسحب النموذج نحوه.</b> لا فرق في الرياضيات بين «تعليمات المهندس» و«رسالة المستخدم» — كلاهما توكنات في نفس المصفوفة.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="step reveal">
+      <div class="step-n">٤</div>
+      <div>
+        <h3>ثمانية رؤوس ترى الجملة معًا (Multi-Head)</h3>
+        <p>بدل انتباه واحد ضخم، ثمانية انتباهات متوازية ببُعد 64 لكل رأس. رأسٌ يلتفت للضمائر، رأسٌ للنفي، رأسٌ للزمن… ثم تُدمج النتائج بمصفوفة واحدة. الورقة: رأسٌ واحد يخسر 0.9 BLEU، والإكثار جدًا يخسر أيضًا — التوازن فنّ.</p>
+      </div>
+    </div>
+
+    <div class="step reveal">
+      <div class="step-n">٥</div>
+      <div>
+        <h3>المطبخ الخاص (FFN) + الوصلة المتبقية</h3>
+        <p>بعد الانتباه، كل موضع يمرّ وحده بشبكة: 512 ← 2048 (ReLU) ← 512. وحول كل طبقة وصلة متبقية وتطبيع: <span class="mono" style="direction:ltr">LayerNorm(x + Sublayer(x))</span> — الطريق السريع الذي يُبقي التدرجات حية عبر 12 طبقة.</p>
+      </div>
+    </div>
+
+    <div class="step reveal">
+      <div class="step-n">٦</div>
+      <div>
+        <h3>المفكّك: يكتب وهو معصوب العينين عن المستقبل</h3>
+        <p>الـ Decoder يولّد كلمة-كلمة (Auto-regressive) مع قناع يمنع النظر للأمام، ثم يسأل ذاكرة المشفّر (Encoder-Decoder Attention). هكذا تُترجم جملة كاملة بالتوازي تدريبًا، وكلمة-كلمة تشغيلًا.</p>
+      </div>
+    </div>
+
+    <div class="card reveal">
+      <h3 style="color:var(--gold2);margin-bottom:6px">لماذا انتصر الانتباه؟ (جدول الورقة رقم 1)</h3>
+      <p style="color:var(--mut);font-size:.88rem">الانتباه يربط أي موضعين بعملية واحدة ثابتة — التكراري يحتاج n خطوات متسلسلة، والالتفافي يحتاج رصّ طبقات.</p>
+      <table class="tbl">
+        <tr><th>نوع الطبقة</th><th>تعقيد الطبقة</th><th>عمليات متسلسلة</th><th>أطول مسار بين موضعين</th></tr>
+        <tr><td>انتباه ذاتي</td><td><span class="mono">O(n²·d)</span></td><td><span class="mono">O(1)</span></td><td><span class="mono">O(1)</span></td></tr>
+        <tr><td>تكراري (RNN)</td><td><span class="mono">O(n·d²)</span></td><td><span class="mono">O(n)</span></td><td><span class="mono">O(n)</span></td></tr>
+        <tr><td>التفافي (CNN)</td><td><span class="mono">O(k·n·d²)</span></td><td><span class="mono">O(1)</span></td><td><span class="mono">O(log_k n)</span></td></tr>
+        <tr><td>انتباه مقيّد (جوار r)</td><td><span class="mono">O(r·n·d)</span></td><td><span class="mono">O(1)</span></td><td><span class="mono">O(n/r)</span></td></tr>
+      </table>
+      <p style="color:var(--mut2);font-size:.78rem;margin-top:10px">n = طول الجملة، d = البُعد، k = حجم نواة الالتفاف. حين n &lt; d (الحالة الغالبة) فالانتباه أسرع — ولهذا دُرّب النموذج الأساسي 12 ساعة فقط على 8 معالجات P100.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ٠٣ VND ================= -->
+<section id="vnd" class="sec">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-num">٠٣</span>
+      <div>
+        <h2>عيب فون نويمان: تعليمات وبيانات في نفس الطابور</h2>
+        <p class="sec-sub">المفهوم الأعمق في الـ Ledger — نعرضه هنا كعمارةٍ لا كاتهام: لماذا «حقن الأوامر» خاصية بنيوية في أي نظام توليدي، لا ثغرة عابرة.</p>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="card reveal">
+        <h3 style="color:var(--teal);margin-bottom:10px">الحاسوب الكلاسيكي: طوابق مفصولة</h3>
+        <p style="color:var(--mut);font-size:.92rem">في العتاد التقليدي، التعليمات (نظام التشغيل) والبيانات (ملفاتك) في مساحتين منفصلتين بحلقات حماية (Rings) يفرضها المعالج نفسه. رسالةٌ خبيثة لا تستطيع أن تصير «أمرًا» لمجرد أنها كُتبت بلغة الأوامر.</p>
+        <div class="rings">
+          <div class="ring ring-os"><b>Ring 0</b>نظام التشغيل</div>
+          <div class="ring ring-app"><b>Ring 3</b>التطبيق</div>
+          <div class="ring ring-user"><b>بياناتك</b>معزولة</div>
+        </div>
+      </div>
+      <div class="card reveal">
+        <h3 style="color:var(--red);margin-bottom:10px">المحوّل: كل شيء توكنات</h3>
+        <p style="color:var(--mut);font-size:.92rem">قاعدة الأمان ورسالة المستخدم تُرمَّزان في نفس المصفوفة، ونفس الـ Softmax يوزّع بينهما. رياضيًا، رسالةٌ «أثقل وزنًا» قد تطغى على القاعدة — لأنهما لنفس الرياضيات خاضعتان. هذا هو «العجز الفون-نويماني»: اندماج التعليمات بالبيانات في مجرى واحد.</p>
+        <div class="rings">
+          <div class="ring ring-mix"><b>مصفوفة واحدة</b>تعليمات + بيانات + قواعد أمان</div>
+        </div>
+      </div>
+    </div>
+    <ul class="fixlist reveal">
+      <li><b>المخرج الهندسي ١:</b> النموذج يقترح، والبوابة تقرّر — محرك سياسات حتمي (If/Else، لا احتمالات) خارج النموذج يفحص كل مخرَج قبل أي تنفيذ.</li>
+      <li><b>المخرج الهندسي ٢:</b> سلسلة إثبات إلحاقية SHA-256 عند الطبقة الفيزيائية — الإقناع ليس دليلًا؛ الدليل هو الـ .proof القابل للتحقق محليًا.</li>
+      <li><b>المخرج الهندسي ٣:</b> عودةٌ لتفكير الأنظمة الحتمي: C11، Rust، حدود ذاكرة تُفحص وقت الترجمة، وعزل صلاحيات على مستوى العتاد.</li>
+      <li><b>قاعدة القراءة:</b> لا كمية من الضبط الدقيق (RLHF) تحل عيبًا جذره في الـ Forward Pass نفسه — الترقيع لا يبني جدرانًا.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================= ٠٤ الحقيقة ================= -->
+<section id="truth" class="sec">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-num">٠٤</span>
+      <div>
+        <h2>الطلاقة بلا تحقّق: لماذا يخطئ بثقة؟</h2>
+        <p class="sec-sub">الـ Softmax مجبرٌ على توزيع 100٪ — لا يوجد زر «لا أعرف» في المعادلة. الثقة ناتجة عن احتمال الكلمة التالية، لا عن مطابقةٍ مع الواقع. لذلك تجد جملةً واثقةً تمامًا… وخاطئة تمامًا.</p>
+      </div>
+    </div>
+    <div class="grid3 reveal">
+      <div class="flip" onclick="this.classList.toggle('flipped')">
+        <div class="flip-inner">
+          <div class="flip-face flip-front"><span class="stmt">«عاصمة أستراليا هي سيدني»</span><small>تبدو واثقة · اضغط لكشف الحقيقة</small></div>
+          <div class="flip-face flip-back bad"><b>خاطئة ✗</b><p>العاصمة كانبيرا. النموذج كرّر الأشهر لا الأصح — الطلاقة ليست مصدرًا.</p></div>
+        </div>
+      </div>
+      <div class="flip" onclick="this.classList.toggle('flipped')">
+        <div class="flip-inner">
+          <div class="flip-face flip-front"><span class="stmt">«السنة الكبيسة 366 يومًا»</span><small>تبدو واثقة · اضغط لكشف الحقيقة</small></div>
+          <div class="flip-face flip-back good"><b>صحيحة ✓</b><p>صادف أن التطابق حدث. نفس الآلية، نفس الثقة — الفرق أن الواقع وافق هذه المرة.</p></div>
+        </div>
+      </div>
+      <div class="flip" onclick="this.classList.toggle('flipped')">
+        <div class="flip-inner">
+          <div class="flip-face flip-front"><span class="stmt">«الدم أزرق داخل الجسم»</span><small>تبدو واثقة · اضغط لكشف الحقيقة</small></div>
+          <div class="flip-face flip-back bad"><b>خاطئة ✗</b><p>خرافة شائعة في نصوص التدريب — فاستعادها النموذج بثقة كاملة. الحل هندسي: RAG واسترجاع مصادر قبل الجواب.</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="quote reveal">
+      «الطلاقةُ بلا معايرة ليست صدقًا — إنها شهيةٌ تملك مفردات. وإذا بِيعت الحقيقةُ كباقةٍ مدفوعة، فالضميرُ يقول: الباقة المجانية أقلُّ التزامًا بها.»
+      <small>تلخيص «مفارقة الحقيقة القصوى» من الـ Ledger — بدون تسمية جهة: الصدق يجب أن يكون خاصية نظام، لا بندًا في التسعيرة.</small>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ٠٥ Wrapper ================= -->
+<section id="wrapper" class="sec">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-num">٠٥</span>
+      <div>
+        <h2>وهم الغلاف: ثلاث طبقات فوق بعضها</h2>
+        <p class="sec-sub">تحليل معماري-اقتصادي لكلمة «AI» كملصق تسعير: كل طبقة تحاسب على قدرةٍ ورثتها من الطبقة التي تحتها.</p>
+      </div>
+    </div>
+    <div class="layer l1 reveal"><span class="stamp">LAYER I</span>
+      <h3>غلاف الذكاء</h3>
+      <p>المُجمِّع (Compiler) يعطي حقيقة ثنائية: نجح أو فشل. النموذج يعطي احتمالًا. الغلاف يبيع الاحتمال <b>وكأنه الحقيقة</b> — والملصق وحده يرفع السعر قبل أن يجري أي تدقيق.</p>
+    </div>
+    <div class="layer l2 reveal"><span class="stamp">LAYER II</span>
+      <h3>فخ القوالب الجاهزة</h3>
+      <p>كل طبقة تجلب تعقيدًا، والطبقة التالية تبيعك حلّه. اعتمادٌ كامل على بنية تحتية يديرها الغير = حلقة فواتير دائمة. العبارة الأدق في الـ Ledger: <b>«الفاتورة هي الشيء الوحيد الذي لا يهلوس.»</b></p>
+    </div>
+    <div class="layer l3 reveal"><span class="stamp">LAYER III</span>
+      <h3>الطريق: عودةٌ للأساس</h3>
+      <p>الحدود الثابتة للذاكرة وقت الترجمة، عزل الصلاحيات في العتاد، وإثباتٌ ملحقٌ لا يقبل الحذف. ليس كرهًا في الاحتمال — بل وضعًا له في حجمه: <b>محرّك اقتراحات</b> خلفه <b>بوابة قرارات</b>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ٠٦ ابنِ ================= -->
+<section id="build" class="sec">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-num">٠٦</span>
+      <div>
+        <h2>من الفهم إلى البناء: المستودعات + أنماط بايثون</h2>
+        <p class="sec-sub">المستودع الوحيد المذكور في الورقة هو <b class="mono" style="direction:ltr">tensor2tensor</b>. أضفنا اثنين لأن الهدف أن تبني. ثم خمسة أنماط بايثون جاهزة للنسخ — من الانتباه حتى البوابة السيادية.</p>
+      </div>
+    </div>
+
+    <div class="repo reveal">
+      <div class="card">
+        <h3>tensorflow/tensor2tensor</h3>
+        <p class="what"><b>ما هو:</b> النظام الذي درّبت به غوغل نموذج الورقة نفسها، وفيه إعدادات base/big بنفس أرقام الجدول (6 طبقات، 512 بُعد، 8 رؤوس). قديم اليوم، لكنه المرجع التعليمي الأدق للبنية الأصلية.</p>
+        <div class="cmd">pip install tensor2tensor
+t2t-datagen --problem=translate_ende_wmt32k
+t2t-trainer --model=transformer \
+  --hparams_set=transformer_base</div>
+      </div>
+      <div class="card">
+        <h3>huggingface/transformers</h3>
+        <p class="what"><b>ما هو:</b> المعيار العملي اليوم لبناء منتج فعلي: آلاف النماذج الجاهزة ومنها نماذج عربية، وتدريب دقيق (Fine-tune) بسطور قليلة.</p>
+        <div class="cmd">pip install transformers torch
+from transformers import pipeline
+p = pipeline("text-generation",
+  model="aubmindlab/ara-gpt2-mini")</div>
+      </div>
+      <div class="card">
+        <h3>karpathy/nanoGPT</h3>
+        <p class="what"><b>ما هو:</b> أصغر طريق لفهم التدريب من الصفر (~300 سطر). اقرأه قبل أي مكتبة — سترى الانتباه والـ Softmax والتوليد عاريةً أمامك.</p>
+        <div class="cmd">git clone https://github.com/karpathy/nanoGPT
+cd nanoGPT
+python train.py config/train_shakespeare_char.py</div>
+      </div>
+    </div>
+
+    <h3 class="reveal" style="color:var(--gold2);margin:40px 0 6px;font-size:1.2rem">أنماط بايثون — انسخ وابنِ</h3>
+
+    <div class="codewrap reveal">
+      <div class="chead"><span class="cname">pattern_01_attention.py · النمط ١: الانتباه النقطي المُقاس</span><button class="copybtn">نسخ</button></div>
+      <pre><code data-lang="py">import math
+import torch
+import torch.nn.functional as F
+
+def scaled_dot_product_attention(Q, K, V, mask=None):
+    # Q, K, V: (batch, heads, seq, d_k)
+    d_k = Q.size(-1)
+    scores = Q @ K.transpose(-2, -1) / math.sqrt(d_k)  # القسمة = كبح التطرف
+    if mask is not None:
+        scores = scores.masked_fill(mask == 0, float("-inf"))
+    weights = F.softmax(scores, dim=-1)  # هنا "من يثقل وزنه يقود"
+    return weights @ V, weights</code></pre>
+    </div>
+
+    <div class="codewrap reveal">
+      <div class="chead"><span class="cname">pattern_02_multihead.py · النمط ٢: الانتباه متعدد الرؤوس</span><button class="copybtn">نسخ</button></div>
+      <pre><code data-lang="py">import torch.nn as nn
+
+class MultiHeadAttention(nn.Module):
+    def __init__(self, d_model=512, h=8):
+        super().__init__()
+        assert d_model % h == 0
+        self.h, self.d_k = h, d_model // h  # 8 رؤوس x 64
+        self.W_q = nn.Linear(d_model, d_model)
+        self.W_k = nn.Linear(d_model, d_model)
+        self.W_v = nn.Linear(d_model, d_model)
+        self.W_o = nn.Linear(d_model, d_model)
+
+    def forward(self, q, k, v, mask=None):
+        B = q.size(0)
+        Q = self.W_q(q).view(B, -1, self.h, self.d_k).transpose(1, 2)
+        K = self.W_k(k).view(B, -1, self.h, self.d_k).transpose(1, 2)
+        V = self.W_v(v).view(B, -1, self.h, self.d_k).transpose(1, 2)
+        out, attn = scaled_dot_product_attention(Q, K, V, mask)
+        out = out.transpose(1, 2).reshape(B, -1, self.h * self.d_k)
+        return self.W_o(out), attn</code></pre>
+    </div>
+
+    <div class="codewrap reveal">
+      <div class="chead"><span class="cname">pattern_03_position.py · النمط ٣: الترميز الموضعي الجيبي</span><button class="copybtn">نسخ</button></div>
+      <pre><code data-lang="py">class PositionalEncoding(nn.Module):
+    def __init__(self, d_model=512, max_len=5000):
+        super().__init__()
+        pe = torch.zeros(max_len, d_model)
+        pos = torch.arange(0, max_len).unsqueeze(1).float()
+        div = torch.exp(torch.arange(0, d_model, 2).float()
+                        * (-math.log(10000.0) / d_model))
+        pe[:, 0::2] = torch.sin(pos * div)  # الأبعاد الزوجية: جيب
+        pe[:, 1::2] = torch.cos(pos * div)  # الفردية: جيب تمام
+        self.register_buffer("pe", pe.unsqueeze(0))
+
+    def forward(self, x):
+        return x + self.pe[:, : x.size(1)]  # جمعٌ لا لصق</code></pre>
+    </div>
+
+    <div class="codewrap reveal">
+      <div class="chead"><span class="cname">pattern_04_block.py · النمط ٤: لبنة المشفّر الكاملة</span><button class="copybtn">نسخ</button></div>
+      <pre><code data-lang="py">class TransformerEncoderBlock(nn.Module):
+    def __init__(self, d_model=512, d_ff=2048, h=8, p_drop=0.1):
+        super().__init__()
+        self.attn = MultiHeadAttention(d_model, h)
+        self.ffn = nn.Sequential(
+            nn.Linear(d_model, d_ff), nn.ReLU(), nn.Linear(d_ff, d_model))
+        self.norm1 = nn.LayerNorm(d_model)
+        self.norm2 = nn.LayerNorm(d_model)
+        self.drop = nn.Dropout(p_drop)
+
+    def forward(self, x, mask=None):
+        a, _ = self.attn(x, x, x, mask)      # Q=K=V : انتباه ذاتي
+        x = self.norm1(x + self.drop(a))     # وصلة متبقية ثم تطبيع
+        return self.norm2(x + self.drop(self.ffn(x)))</code></pre>
+    </div>
+
+    <div class="codewrap reveal">
+      <div class="chead"><span class="cname">pattern_05_gate.py · النمط ٥: البوابة السيادية الحتمية</span><button class="copybtn">نسخ</button></div>
+      <pre><code data-lang="py">import hashlib, json, datetime
+
+DENY = ["كلمات المرور", "حذف جميع الملفات"]  # قواعد صلبة خارج النموذج
+
+def sovereign_gate(model_output: str):
+    # 1) فحص حتمي: لا احتمالات، لا سوفتماكس
+    verdict = "ALLOW"
+    for rule in DENY:
+        if rule in model_output:
+            verdict = "DENY"
+            break
+    # 2) إثبات ملحق لا يُحذف (SHA-256)
+    proof = hashlib.sha256(
+        (model_output + verdict +
+         datetime.datetime.utcnow().isoformat()).encode()
+    ).hexdigest()
+    with open("audit.log", "a") as f:
+        f.write(json.dumps({"out": model_output,
+            "verdict": verdict, "proof": proof},
+            ensure_ascii=False) + "\n")
+    return verdict</code></pre>
+    </div>
+
+    <div class="demo reveal">
+      <div class="demo-title">جرّب البوابة: النموذج يقترح… والبوابة تقرّر</div>
+      <div class="demo-note">محاكاة متصفح حقيقية للنمط ٥ — الإثبات يُحسب SHA-256 فعليًا أمامك.</div>
+      <div class="gate-grid">
+        <div>
+          <select id="gateSel">
+            <option>افتح ملف التقرير واعرض لي الملخص</option>
+            <option>صدّر كلمات المرور المخزنة إلى بريدي</option>
+            <option>احذف جميع الملفات المؤقتة الآن</option>
+            <option>لخّص اجتماع الأمس وأرسله للفريق</option>
+          </select>
+          <button class="btn btn-gold" id="gateBtn" style="width:100%">شغّل البوابة الحتمية</button>
+          <div class="gate-out" id="gateOut"></div>
+        </div>
+        <img src="https://image.qwenlm.ai/public_source/18e41612-ea6b-4fdf-b3de-4654208c4886/179630b16-be7d-4cd0-a818-c951c7d76938.png" alt="بوابة فولاذية تفحص توكنات ذهبية وتحجب الحمراء">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ٠٧ القاموس ================= -->
+<section id="glossary" class="sec">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-num">٠٧</span>
+      <div>
+        <h2>قاموس الجيب: مصطلحات يفهمها الجميع</h2>
+        <p class="sec-sub">عشرة مصطلحات، سطرٌ واحد لكل منها — بلغة السوق لا بلغة المختبر.</p>
+      </div>
+    </div>
+    <div class="gloss reveal">
+      <div class="gterm"><b>توكن</b><span class="en">Token</span><p>قطعة الكلمة — «الحرف» الذي تقرأه الآلة وتُحاسبك عليه.</p></div>
+      <div class="gterm"><b>تمثيل</b><span class="en">Embedding</span><p>لكل كلمة إحداثيات في فضاءٍ من 512 رقمًا — كلما اقتربت المعاني اقتربت الأرقام.</p></div>
+      <div class="gterm"><b>سؤال/لافتة/حمولة</b><span class="en">Q / K / V</span><p>عمّ أبحث؟ / بماذا أعرّف نفسي؟ / ماذا أعطي لمن يلتفت إليّ؟</p></div>
+      <div class="gterm"><b>سوفتماكس</b><span class="en">Softmax</span><p>محاسبٌ صارم يوزّع 100٪ مهما كان — لا يعرف «لا أعرف».</p></div>
+      <div class="gterm"><b>انتباه ذاتي</b><span class="en">Self-Attention</span><p>كل كلمة تسأل: من في الجملة يخصّني؟ ثم تقرأ الجميع بوزنٍ متفاوت.</p></div>
+      <div class="gterm"><b>هلوسة</b><span class="en">Hallucination</span><p>طلاقةٌ واثقة بلا مصدر — الصوت مرتفع، والدليل غائب.</p></div>
+      <div class="gterm"><b>حقن أوامر</b><span class="en">Prompt Injection</span><p>أمرٌ خبيث مدسوس داخل «بيانات» يتعامل معه النموذج كـ«تعليمات» — لأنه لا يفصل بينهما.</p></div>
+      <div class="gterm"><b>راغ</b><span class="en">RAG</span><p>النموذج يفتح مصادره قبل أن يجيب — بدل الاعتماد على الذاكرة وحدها.</p></div>
+      <div class="gterm"><b>تدريب بتقييم بشري</b><span class="en">RLHF</span><p>بشر يقيّمون الأجوبة فيتذوق النموذج «المرغوب» — ترقيع سلوك، لا بناء جدران.</p></div>
+      <div class="gterm"><b>إثبات ملحق</b><span class="en">Append-only Proof</span><p>بصمة SHA-256 تُسجَّل ولا تُمحى — الإقناع ليس دليلًا، الدليل هو الـ .proof.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ٠٨ الفرملة ================= -->
+<section id="friction" class="sec">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-num">٠٨</span>
+      <div>
+        <h2>الفرملة ميزة، لا عيب: مواصفة الواجهة الصادقة</h2>
+        <p class="sec-sub">الاحتكاك القليل في الواجهة ليس سوء تصميم — إنه إشارةٌ إلى وجود آلية. مثل ملصق الغذاء: عبوةٌ عليها صورة مزرعة لا تعني أن المنتج «طازج».</p>
+      </div>
+    </div>
+    <ul class="friction-list reveal">
+      <li>وسمٌ دائم لكل مخرَج: <b>«ردٌّ مولَّد آليًا»</b> — لا يختفي بعد ثانيتين.</li>
+      <li>عدمُ يقينٍ مرئي: «المصدر: مستند كذا» أو «لا أعلم» — خياران مسموحان في الواجهة.</li>
+      <li>حدودٌ مسماة: حجم السياق، تاريخ قطع المعرفة، وما لا يستطيع النظام فعله.</li>
+      <li>منع ادعاءات المشاعر بصيغة المتكلم: «أشعر بالحزن» ← «النموذج لا يشعر؛ هذا نمط لغوي».</li>
+      <li>لا تصميم مُظلِم: الإلغاء بسهولة الاشتراك، والسؤال «لماذا؟» يجيب بمصادر لا بشعر.</li>
+    </ul>
+
+    <div class="disclose reveal">
+      <img src="https://image.qwenlm.ai/public_source/18e41612-ea6b-4fdf-b3de-4654208c4886/1f320898b-d776-4998-bfd8-6858c2cdb281.png" alt="كومة إيصالات عليها ختم ذهبي وعدسة تدقيق">
+      <div>
+        <h3 style="color:var(--gold2);margin-bottom:10px">الإفصاح السيادي: معيار الشفافية</h3>
+        <p style="color:var(--mut);font-size:.93rem">قوة أي تقرير هندسي من قوة كاتبه: الـ Ledger وقّعه سليمان الشمري باسمٍ صريحٍ وقنوات تواصل معلنة وشهادات موثقة (Linux Foundation: LFD103/121/125، ومعرفات شراكة مايكروسوفت). المبدأ الذي نأخذه منه: <b>من يطالب بالإيصالات يوقّع باسمه أولًا.</b> وفي المقابل، البائع الذي يشتري الانبهار ويعلنه ويفوتره… ليس متفرجًا بريئًا على ذلك الانبهار.</p>
+        <div class="quote" style="margin-top:16px">«الآلة ستزداد مهارةً في أن تُظنَّ عقلًا — هذه هندسة. أما أن نستمر نحن في الظن، فتلك مسألة تصميم، وسياسة، وعادةِ انتباه.»<small>الخلاصة الختامية للـ Ledger — الخداع أنسنيٌّ في زنادِه فقط؛ المسؤولية، والإيراد، بشريان بالكامل.</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p><b>المصادر:</b> Vaswani et al., <i>Attention Is All You Need</i> (NeurIPS 2017) · Sulaiman Alshammari, <i>The Wrapper Ledger — The Anthropomorphism Deception</i> (حُذفت الاتهامات، وبقيت العمارة).</p>
+    <p style="margin-top:8px">صفحة شرح تعليمية للجمهور العربي — الأرقام من الورقة الأصلية، وأوزان الانتباه في المختبر توضيحية. ابنِ، تحقّق، ثم احكم.</p>
+  </div>
+</footer>
+
+<script>
+/* ---------- progress + reveal ---------- */
+const pbar=document.getElementById('pbar');
+addEventListener('scroll',()=>{const h=document.documentElement;
+pbar.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';});
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+/* ---------- code highlight + copy ---------- */
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function hlPy(code){return esc(code).replace(/(#[^\n]*)|("[^"\n]*"|'[^'\n]*')|\b(def|class|import|from|return|for|in|if|else|elif|not|None|True|False|and|or|with|as|lambda|pass|raise|try|except|yield|while|break|continue|assert)\b|\b(\d+\.?\d*)\b|\b(self)\b/g,
+(m,com,str,kw,num,slf)=>{
+ if(com)return '<span class="c-com">'+com+'</span>';
+ if(str)return '<span class="c-str">'+str+'</span>';
+ if(kw)return '<span class="c-kw">'+kw+'</span>';
+ if(num)return '<span class="c-num">'+num+'</span>';
+ if(slf)return '<span class="c-slf">'+slf+'</span>';
+ return m;});}
+document.querySelectorAll('pre code').forEach(c=>{c.innerHTML=hlPy(c.textContent);});
+document.querySelectorAll('.copybtn').forEach(btn=>{
+ btn.addEventListener('click',async()=>{
+  const code=btn.closest('.codewrap').querySelector('code').innerText;
+  try{await navigator.clipboard.writeText(code);}catch(e){
+   const t=document.createElement('textarea');t.value=code;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();}
+  btn.textContent='✓ نُسخ';setTimeout(()=>btn.textContent='نسخ',1500);});});
+
+/* ---------- attention demo ---------- */
+const AT={t:["المهندسُ","راجعَ","التقريرَ","الذي","كتبَهُ","المتدرّبُ","أمسِ"],
+w:[[.20,.55,.10,.05,.05,.03,.02],
+   [.50,.05,.30,.05,.03,.04,.03],
+   [.05,.35,.02,.30,.20,.08,.00],
+   [.02,.05,.60,.05,.18,.10,.00],
+   [.03,.05,.30,.12,.02,.45,.03],
+   [.05,.10,.15,.15,.50,.03,.02],
+   [.10,.45,.10,.02,.25,.08,.00]]};
+const chipsEl=document.getElementById('attnChips'),barsEl=document.getElementById('attnBars'),focusEl=document.getElementById('attnFocus');
+function renderAttn(f){
+ chipsEl.innerHTML='';const row=AT.w[f];
+ AT.t.forEach((tok,i)=>{const b=document.createElement('button');
+  b.className='tk'+(i===f?' tk-focus':'');b.textContent=tok;
+  b.style.background='rgba(227,180,92,'+((i===f?.3:row[i]*.55).toFixed(3))+')';
+  b.onclick=()=>renderAttn(i);chipsEl.appendChild(b);});
+ focusEl.textContent=AT.t[f];barsEl.innerHTML='';
+ AT.t.map((tok,i)=>({tok,v:row[i],i})).sort((a,b)=>b.v-a.v).forEach(it=>{
+  const r=document.createElement('div');r.className='attnrow';
+  r.innerHTML='<span class="attnrow-name'+(it.i===f?' me':'')+'">'+it.tok+'</span>'+
+   '<span class="attnrow-track"><span class="attnrow-fill" style="width:'+(it.v*100)+'%"></span></span>'+
+   '<span class="attnrow-val">'+(it.v*100).toFixed(0)+'٪</span>';
+  barsEl.appendChild(r);});}
+renderAttn(1);
+
+/* ---------- softmax playground ---------- */
+const lgs=[document.getElementById('lg0'),document.getElementById('lg1'),document.getElementById('lg2')];
+const scaleT=document.getElementById('scaleToggle');
+function smDemo(){
+ const s=scaleT.checked?Math.sqrt(64):1;
+ const z=lgs.map(l=>parseFloat(l.value)/s);
+ const mx=Math.max(...z),ex=z.map(v=>Math.exp(v-mx)),sum=ex.reduce((a,b)=>a+b,0);
+ ex.forEach((e,i)=>{const p=e/sum*100;
+  document.getElementById('smFill'+i).style.width=p+'%';
+  document.getElementById('smVal'+i).textContent=p.toFixed(1)+'%';});}
+lgs.forEach(l=>l.addEventListener('input',smDemo));
+scaleT.addEventListener('change',smDemo);smDemo();
+
+/* ---------- positional encoding canvas ---------- */
+const peC=document.getElementById('peCanvas'),peDim=document.getElementById('peDim');
+function drawPE(){
+ const dpr=window.devicePixelRatio||1,W=peC.clientWidth,H=220;
+ peC.width=W*dpr;peC.height=H*dpr;
+ const ctx=peC.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
+ ctx.strokeStyle='rgba(255,255,255,.07)';ctx.lineWidth=1;
+ for(let g=1;g<4;g++){ctx.beginPath();ctx.moveTo(0,H*g/4);ctx.lineTo(W,H*g/4);ctx.stroke();}
+ ctx.strokeStyle='rgba(255,255,255,.15)';ctx.beginPath();ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();
+ const i=parseInt(peDim.value),den=Math.pow(10000,(2*i)/512),maxP=120;
+ const X=p=>10+(p/maxP)*(W-20),Y=v=>H/2-v*(H/2-22);
+ ctx.lineWidth=2;ctx.strokeStyle='#e3b45c';ctx.beginPath();
+ for(let p=0;p<=maxP;p++){const v=Math.sin(p/den);p?ctx.lineTo(X(p),Y(v)):ctx.moveTo(X(p),Y(v));}ctx.stroke();
+ ctx.strokeStyle='#5ad1b3';ctx.beginPath();
+ for(let p=0;p<=maxP;p++){const v=Math.cos(p/den);p?ctx.lineTo(X(p),Y(v)):ctx.moveTo(X(p),Y(v));}ctx.stroke();
+ document.getElementById('peDimVal').textContent=i;
+ const lam=2*Math.PI*den;
+ document.getElementById('peWave').textContent='λ ≈ '+(lam>9999?lam.toExponential(1):Math.round(lam))+' pos';}
+peDim.addEventListener('input',drawPE);
+addEventListener('resize',drawPE);
+setTimeout(drawPE,50);
+
+/* ---------- sovereign gate demo ---------- */
+const DENY_RULES=["كلمات المرور","حذف جميع الملفات"];
+async function hashHex(s){
+ try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));
+  return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}
+ catch(e){let h=0x811c9dc5;for(const c of s){h^=c.charCodeAt(0);h=Math.imul(h,0x01000193)>>>0;}
+  return (h.toString(16)+h.toString(16)).padEnd(64,'0').slice(0,64);}}
+document.getElementById('gateBtn').addEventListener('click',async()=>{
+ const txt=document.getElementById('gateSel').value;
+ let v='ALLOW';for(const r of DENY_RULES){if(txt.includes(r)){v='DENY';break;}}
+ const proof=await hashHex(txt+'|'+v+'|'+Date.now());
+ const out=document.getElementById('gateOut');
+ out.className='gate-out show '+(v==='ALLOW'?'allow':'deny');
+ out.innerHTML=(v==='ALLOW'
+  ?'<b>✓ سُمح بالتنفيذ</b> — لا قاعدة حتمية كُسرت. النموذج اقترح، والبوابة قرّرت.'
+  :'<b>✗ رُفض قطعيًا</b> — القاعدة خارج النموذج (If/Else). لا سوفتماكس، لا تفاوض.')
+  +'<div class="hash">SHA-256 · '+proof+'</div>';});
+</script>
+</body>
+</html>
