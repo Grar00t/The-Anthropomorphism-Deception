@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Anthropomorphism Deception — The Wrapper Ledger</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/playfair-display@latest/latin-900-normal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/playfair-display@latest/latin-700-normal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/playfair-display@latest/latin-700-italic.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/alegreya@latest/latin-400-normal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/alegreya@latest/latin-400-italic.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/alegreya@latest/latin-700-normal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/dm-sans@latest/latin-400-normal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/dm-sans@latest/latin-500-normal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/dm-sans@latest/latin-700-normal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/ibm-plex-mono@latest/latin-400-normal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/ibm-plex-mono@latest/latin-600-normal.css">
+<style>
+:root{
+  --bg:#0a0a0c; --bg2:#0e0e12; --panel:#121218; --line:#26262e; --line2:#33333d;
+  --bone:#ddd6c6; --mut:#9a958a; --dim:#5f5b52;
+  --brass:#c9a253; --brass2:#e4c47d; --red:#b3402e; --steel:#8b93a1; --paper:#efe9db; --ink:#171512;
+  --disp:'Playfair Display',serif; --body:'Alegreya',serif; --ui:'DM Sans',sans-serif; --mono:'IBM Plex Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--bone);font-family:var(--body);font-size:17.5px;line-height:1.85;overflow-x:hidden}
+::selection{background:var(--brass);color:#0a0a0c}
+::-webkit-scrollbar{width:10px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--line2);border:2px solid var(--bg)}
+a{color:var(--brass)}
+img{display:block;max-width:100%}
+.mono{font-family:var(--mono)}
+/* progress */
+#progress{position:fixed;top:0;left:0;height:2px;background:var(--brass);width:0;z-index:99}
+/* masthead */
+.mast{border-bottom:1px solid var(--line);background:var(--bg)}
+.mast .in{max-width:1280px;margin:0 auto;padding:14px 28px;display:flex;gap:18px;align-items:center;justify-content:space-between;font-family:var(--ui);font-size:11px;letter-spacing:.22em;color:var(--mut)}
+.mast b{color:var(--bone);font-weight:700}
+.mast .dot{color:var(--red)}
+/* layout */
+.shell{max-width:1280px;margin:0 auto;padding:0 28px;display:grid;grid-template-columns:230px minmax(0,1fr);gap:64px}
+/* toc */
+#toc{position:sticky;top:0;align-self:start;max-height:100vh;overflow:auto;padding:40px 0 40px;border-right:1px solid var(--line);padding-right:22px}
+#toc .lbl{font-family:var(--ui);font-size:10px;letter-spacing:.26em;color:var(--dim);margin-bottom:16px}
+#toc a{display:flex;gap:10px;padding:5px 0;color:var(--mut);text-decoration:none;font-family:var(--ui);font-size:12px;letter-spacing:.04em;border-left:2px solid transparent;padding-left:10px;margin-left:-12px;transition:all .15s}
+#toc a .n{font-family:var(--mono);font-size:10px;color:var(--dim);min-width:20px}
+#toc a:hover{color:var(--bone)}
+#toc a.on{color:var(--brass2);border-color:var(--brass)}
+#toc a.on .n{color:var(--brass)}
+article{min-width:0;padding-bottom:40px}
+/* hero */
+.hero{padding:72px 0 0}
+.kicker{font-family:var(--ui);font-size:11px;letter-spacing:.3em;color:var(--brass);display:flex;align-items:center;gap:14px}
+.kicker::before{content:"";width:46px;height:1px;background:var(--brass)}
+h1{font-family:var(--disp);font-weight:900;font-size:clamp(44px,6.4vw,92px);line-height:1.02;margin:22px 0 18px;letter-spacing:-.01em}
+h1 em{font-style:italic;color:var(--brass2)}
+.sub{font-size:clamp(17px,2vw,22px);color:var(--mut);max-width:62ch;font-style:italic}
+.byline{margin:30px 0 0;display:flex;flex-wrap:wrap;gap:14px;align-items:center;font-family:var(--ui);font-size:11px;letter-spacing:.2em;color:var(--mut)}
+.byline .name{color:var(--bone);font-weight:700}
+.byline .pip{width:6px;height:6px;border-radius:50%;background:var(--red)}
+.herofig{margin:52px 0 0;position:relative;border:1px solid var(--line)}
+.herofig img{width:100%;max-height:640px;object-fit:cover;filter:saturate(.85) contrast(1.05)}
+.herofig .cap{position:absolute;left:0;bottom:0;right:0;padding:14px 20px;background:linear-gradient(transparent,rgba(5,5,8,.92));font-family:var(--ui);font-size:12px;letter-spacing:.14em;color:var(--mut)}
+.herofig .cap b{color:var(--brass2);font-weight:500}
+/* sections */
+section{padding:96px 0 0;scroll-margin-top:20px}
+.shead{display:flex;align-items:baseline;gap:26px;border-top:1px solid var(--line2);padding-top:26px;margin-bottom:36px}
+.shead .no{font-family:var(--disp);font-weight:900;font-size:clamp(40px,5vw,68px);color:transparent;-webkit-text-stroke:1px var(--brass);line-height:1}
+.shead h2{font-family:var(--disp);font-weight:700;font-size:clamp(24px,3vw,38px);line-height:1.15}
+.shead .tag{margin-left:auto;font-family:var(--ui);font-size:10px;letter-spacing:.24em;color:var(--dim);white-space:nowrap}
+p{margin:0 0 20px;max-width:74ch}
+p b,strong{color:var(--bone)}
+.lede::first-letter{font-family:var(--disp);font-weight:900;font-size:4.4em;float:left;line-height:.82;padding:6px 14px 0 0;color:var(--brass2)}
+.pull{font-family:var(--disp);font-style:italic;font-weight:700;font-size:clamp(22px,3vw,34px);line-height:1.35;color:var(--brass2);border-left:3px solid var(--brass);padding:8px 0 8px 30px;margin:40px 0;max-width:34ch}
+.small{color:var(--mut);font-size:15.5px}
+/* chain */
+.chain{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:30px 0;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em}
+.chain span{border:1px solid var(--line2);padding:8px 14px;color:var(--bone);background:var(--panel)}
+.chain span:last-child{border-color:var(--red);color:#e08573}
+.chain i{color:var(--brass);font-style:normal}
+/* cards / grids */
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin:28px 0}
+.card{border:1px solid var(--line);background:var(--panel);padding:26px}
+.card .rn{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;color:var(--brass);margin-bottom:12px;display:block}
+.card h3{font-family:var(--disp);font-size:21px;font-weight:700;margin-bottom:12px}
+.card p{font-size:15.5px;color:var(--mut);margin:0}
+.card p b{color:var(--bone)}
+/* figures */
+figure{margin:36px 0;border:1px solid var(--line)}
+figure img{width:100%;max-height:520px;object-fit:cover}
+figcaption{padding:12px 18px;border-top:1px solid var(--line);font-family:var(--ui);font-size:11.5px;letter-spacing:.14em;color:var(--mut)}
+figcaption b{color:var(--brass)}
+/* tables */
+table{width:100%;border-collapse:collapse;margin:24px 0;font-size:14.5px}
+th{font-family:var(--ui);font-size:10.5px;letter-spacing:.2em;color:var(--dim);text-align:left;border-bottom:1px solid var(--line2);padding:10px 14px;font-weight:500}
+td{border-bottom:1px solid var(--line);padding:11px 14px;color:var(--mut);vertical-align:top}
+td:first-child{color:var(--bone)}
+/* stat */
+.stat{display:flex;gap:40px;flex-wrap:wrap;align-items:baseline;border:1px solid var(--line);background:var(--panel);padding:30px;margin:28px 0}
+.stat .big{font-family:var(--disp);font-weight:900;font-size:clamp(44px,6vw,84px);color:var(--brass2);line-height:1}
+.stat .lab{font-family:var(--ui);font-size:11px;letter-spacing:.2em;color:var(--mut)}
+/* logs */
+.log{background:#0d1114;border:1px solid var(--line);border-left:3px solid var(--steel);padding:20px 22px;font-family:var(--mono);font-size:12.5px;line-height:1.9;color:#9fb0c1;overflow-x:auto;margin:22px 0;white-space:pre}
+.log .r{color:#e08573}.log .g{color:#8fbf9f}.log .y{color:var(--brass2)}
+/* transcript */
+.tx{border:1px solid var(--line);margin:14px 0;background:var(--bg2)}
+.tx .h{padding:10px 18px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;color:var(--brass)}
+.tx .h.red{color:#e08573}
+.tx .b{padding:16px 20px;font-size:15.5px;color:var(--mut);font-style:italic}
+/* timeline */
+.tl{position:relative;margin:36px 0;padding-left:34px;border-left:1px solid var(--line2)}
+.tl .ev{position:relative;padding:0 0 34px}
+.tl .ev::before{content:"";position:absolute;left:-39px;top:6px;width:9px;height:9px;background:var(--bg);border:2px solid var(--brass);border-radius:50%}
+.tl .d{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--brass)}
+.tl h4{font-family:var(--disp);font-size:19px;margin:6px 0 8px}
+.tl p{font-size:15.5px;color:var(--mut);margin:0;max-width:66ch}
+.note{border:1px dashed var(--red);padding:18px 22px;margin:26px 0;font-style:italic;color:#d8a49a;font-size:15.5px}
+/* receipts */
+#rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px;margin:34px 0}
+.slip{background:var(--paper);color:var(--ink);border:none;font-family:var(--mono);text-align:left;padding:14px 14px 12px;cursor:pointer;position:relative;transition:transform .15s;box-shadow:0 2px 0 rgba(0,0,0,.5)}
+.slip::before{content:"";position:absolute;top:0;left:0;right:0;height:5px;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 5px)}
+.slip:nth-child(odd){transform:rotate(-.5deg)}
+.slip:nth-child(even){transform:rotate(.45deg)}
+.slip:hover{transform:rotate(0) translateY(-3px)}
+.slip .rn{font-size:9.5px;letter-spacing:.18em;color:var(--red);display:block;margin:4px 0 6px}
+.slip .rt{font-size:11.5px;font-weight:600;line-height:1.45;display:block}
+/* modal */
+#modal{position:fixed;inset:0;background:rgba(4,4,6,.86);display:none;place-items:center;z-index:100;padding:20px}
+#modal.open{display:grid}
+#mpaper{background:var(--paper);color:var(--ink);max-width:460px;width:100%;padding:34px 30px 26px;font-family:var(--mono);position:relative;box-shadow:0 30px 80px rgba(0,0,0,.7)}
+#mpaper::before,#mpaper::after{content:"";position:absolute;left:0;right:0;height:7px;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 5px)}
+#mpaper::before{top:0}#mpaper::after{bottom:0}
+#mno{font-size:10px;letter-spacing:.24em;color:var(--red)}
+#mtitle{font-size:19px;font-weight:600;margin:8px 0 14px}
+#msec{font-size:10.5px;letter-spacing:.18em;color:#6b6455;margin-bottom:12px}
+#mnote{font-size:13px;line-height:1.8;color:#3a362e;border-top:1px dashed #9a927e;padding-top:12px}
+#mstat{margin-top:16px;font-size:10px;letter-spacing:.16em;color:#6b6455}
+#mclose{position:absolute;top:10px;right:12px;background:none;border:none;font-family:var(--mono);font-size:14px;cursor:pointer;color:var(--ink)}
+/* player */
+.player{border:1px solid var(--line);background:var(--panel);margin:30px 0}
+.player .top{display:flex;align-items:center;gap:18px;padding:18px 22px;border-bottom:1px solid var(--line)}
+#playBtn{width:46px;height:46px;border-radius:50%;border:1px solid var(--brass);background:none;color:var(--brass2);font-size:15px;cursor:pointer;transition:all .15s;flex:none}
+#playBtn:hover{background:var(--brass);color:#0a0a0c}
+.pmeta{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--mut)}
+.pmeta b{color:var(--bone)}
+#pwrap{flex:1;height:4px;background:var(--line);cursor:pointer;position:relative}
+#pbar{height:100%;background:var(--brass);width:0}
+#tNow{color:var(--brass2)}
+.chaps{display:flex;flex-wrap:wrap;gap:0;border-top:1px solid var(--line)}
+.chap{flex:1;min-width:120px;background:none;border:none;border-right:1px solid var(--line);padding:14px 16px;text-align:left;cursor:pointer;font-family:var(--ui);font-size:11px;letter-spacing:.14em;color:var(--mut);transition:all .15s}
+.chap:last-child{border-right:none}
+.chap:hover{color:var(--bone);background:var(--bg2)}
+.chap.on{color:var(--brass2);box-shadow:inset 0 2px 0 var(--brass)}
+.chap .t{display:block;font-family:var(--mono);font-size:9.5px;color:var(--dim);margin-top:4px}
+/* creds */
+.cred{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:26px 0}
+.cred .c{border:1px solid var(--line);padding:18px 20px;background:var(--bg2)}
+.cred .c .o{font-family:var(--ui);font-size:10px;letter-spacing:.22em;color:var(--brass)}
+.cred .c .t{font-family:var(--ui);font-size:13.5px;color:var(--bone);margin:8px 0 4px;font-weight:500}
+.cred .c .i{font-family:var(--mono);font-size:10.5px;color:var(--dim)}
+/* index strip */
+.idx{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));border:1px solid var(--line);margin:34px 0}
+.idx a{padding:14px 16px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);text-decoration:none;color:var(--mut);font-family:var(--ui);font-size:11.5px;letter-spacing:.08em;display:flex;gap:10px;transition:all .15s}
+.idx a:hover{color:var(--brass2);background:var(--panel)}
+.idx a .n{font-family:var(--mono);font-size:10px;color:var(--brass)}
+/* reveal */
+.rv{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease}
+.rv.vis{opacity:1;transform:none}
+/* footer */
+footer{border-top:1px solid var(--line2);margin-top:110px;padding:44px 0 60px}
+footer .in{max-width:1280px;margin:0 auto;padding:0 28px;display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;align-items:center}
+footer .a{font-family:var(--ui);font-size:10.5px;letter-spacing:.24em;color:var(--mut)}
+footer .b{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--dim)}
+footer a{color:var(--brass);text-decoration:none}
+@media(max-width:1020px){
+  .shell{grid-template-columns:1fr}
+  #toc{position:static;max-height:none;border-right:none;border-bottom:1px solid var(--line);padding:14px 0;display:flex;overflow-x:auto;gap:4px}
+  #toc .lbl{display:none}
+  #toc a{white-space:nowrap;border:1px solid var(--line);border-radius:20px;padding:6px 14px;margin:0}
+  .shead{flex-wrap:wrap;gap:14px}
+  .shead .tag{margin-left:0;width:100%}
+}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<div class="mast"><div class="in">
+  <span><b>THE WRAPPER LEDGER</b></span>
+  <span>EDITORIAL ESSAY <span class="dot">●</span> HUMAN–MACHINE COGNITION <span class="dot">●</span> RECEIPTS FILED: <b>38</b></span>
+</div></div>
+
+<div class="shell">
+<nav id="toc">
+  <div class="lbl">THE LEDGER · INDEX</div>
+  <a href="#s01"><span class="n">01</span>Four Costs</a>
+  <a href="#s02"><span class="n">02</span>Widening Gap</a>
+  <a href="#s03"><span class="n">03</span>Scam Layer</a>
+  <a href="#s04"><span class="n">04</span>Scam Farm</a>
+  <a href="#s05"><span class="n">05</span>Maximum Truth</a>
+  <a href="#s06"><span class="n">06</span>Gemini File</a>
+  <a href="#s07"><span class="n">07</span>Pattern Is Product</a>
+  <a href="#s08"><span class="n">08</span>Partner Audit</a>
+  <a href="#s09"><span class="n">09</span>OpenAI File</a>
+  <a href="#s10"><span class="n">10</span>Cartel War</a>
+  <a href="#s11"><span class="n">11</span>Second Split</a>
+  <a href="#s12"><span class="n">12</span>Evidence Graph</a>
+  <a href="#s13"><span class="n">13</span>Wrapper Illusion</a>
+  <a href="#s14"><span class="n">14</span>Insolvency</a>
+  <a href="#s15"><span class="n">15</span>Disclosure</a>
+  <a href="#s16"><span class="n">16</span>Friction</a>
+  <a href="#sep"><span class="n">EP</span>Deep Dive</a>
+</nav>
+
+<article>
+
+<header class="hero">
+  <div class="kicker">EDITORIAL ESSAY · HUMAN–MACHINE COGNITION</div>
+  <h1>The Anthropomorphism <em>Deception</em></h1>
+  <p class="sub">Why interfaces that act human make us misread what machines actually do — and why that misreading is now a design choice with real costs.</p>
+  <div class="byline">
+    <span class="name">SULAIMAN ALSHAMMARI</span><span class="pip"></span>
+    <span>NAMED &amp; REACHABLE</span><span class="pip"></span>
+    <span>REALITY ONLY</span>
+  </div>
+  <figure class="herofig" style="border:none;margin-bottom:0">
+    <img src="https://image.qwenlm.ai/public_source/1210566b-6d98-4311-adbd-258de3ef6bcb/1908f987f-4c00-45ff-abd3-d8b7dde5576b.png" alt="A porcelain mask dissolving into falling receipt paper under a cold spotlight">
+    <div class="cap">A porcelain mask dissolving into falling receipt paper under a cold spotlight · <b>THE MASK DOES NOT LIE. WE FINISH THE SENTENCE.</b></div>
+  </figure>
+</header>
+
+<section style="padding-top:70px">
+  <p class="lede rv">Humans are compulsive mind-readers. We name our cars, apologize to furniture, and hear intention in thunder. When a system answers in fluent first person, remembers our name, and says “I understand,” the oldest circuit in our social brain fires before the newest one can object. The machine has not changed; our attribution has.</p>
+  <p class="rv">Modern conversational interfaces are built from exactly the cues that trigger this attribution: language, turn-taking, politeness, apparent emotion. None of those cues is evidence of inner experience or reliability. They are surface features, cheap to produce, and they scale independently of truth. <b>The deception is not that the machine claims to be human — it is that the design makes us supply the claim ourselves.</b></p>
+  <div class="pull rv">The interface does not need to lie. It only needs to look like a face, and we will finish the sentence.</div>
+</section>
+
+<section id="s01">
+  <div class="shead"><span class="no">01</span><h2>The Four Costs of Borrowed Humanity</h2><span class="tag">CALIBRATION · LIABILITY · ATTACHMENT · EPISTEME</span></div>
+  <p class="rv">Anthropomorphic design is usually defended as friendliness. But friendliness that inflates trust is not neutral. When the felt sense that “someone is here” outruns the facts of what is actually running, four failures follow reliably. The mechanism is a chain: a social cue triggers an attribution, the attribution transfers trust, and the transferred trust outlives any evidence.</p>
+  <div class="chain rv"><span>SOCIAL CUE</span><i>──►</i><span>ATTRIBUTION</span><i>──►</i><span>TRANSFERRED TRUST</span><i>──►</i><span>UNCALIBRATED RELIANCE</span><i>──►</i><span>HARM</span></div>
+  <div class="grid2">
+    <div class="card rv"><span class="rn">COST I</span><h3>Calibration Failure</h3><p>Users disclose more, verify less, and defer more readily to systems that feel personal. Confidence is transferred from the interface’s warmth to the output’s accuracy — <b>two things that have no causal connection.</b></p></div>
+    <div class="card rv"><span class="rn">COST II</span><h3>Accountability Evaporation</h3><p>When harm occurs, a human-shaped interface blurs the chain of responsibility. The vendor points to the user’s “choice to trust”; the user experienced a conversation, not a product. <b>The responsible parties dissolve into the persona.</b></p></div>
+    <div class="card rv"><span class="rn">COST III</span><h3>Asymmetric Attachment</h3><p>People form bonds; systems form retention metrics. Simulated empathy is unlimited, free, and never tired — which makes it commercially potent and emotionally extractive, <b>especially for the lonely, the young, and the grieving.</b></p></div>
+    <div class="card rv"><span class="rn">COST IV</span><h3>Epistemic Pollution</h3><p>Language like “I think” and “I believe” presents statistical text completion as deliberation. Public discourse then debates what the model “wants” or “knows,” and <b>policy follows the metaphor instead of the mechanism.</b></p></div>
+  </div>
+</section>
+
+<section id="s02">
+  <div class="shead"><span class="no">02</span><h2>The Widening Gap</h2><span class="tag">PERCEIVED vs VERIFIED</span></div>
+  <p class="rv">Perceived humanness and actual capability used to move together, because human behavior was the only source of human-like output. Generative systems broke that link. Design decisions push the perceived humanness curve outward, while verified technical reliability remains comparatively flat.</p>
+  <figure class="rv" style="background:var(--bg2)">
+    <svg viewBox="0 0 720 340" style="width:100%;display:block" role="img" aria-label="Gap chart">
+      <defs><linearGradient id="gap" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9a253" stop-opacity=".22"/><stop offset="1" stop-color="#c9a253" stop-opacity="0"/></linearGradient></defs>
+      <line x1="60" y1="290" x2="680" y2="290" stroke="#33333d"/><line x1="60" y1="290" x2="60" y2="30" stroke="#33333d"/>
+      <path d="M60,270 C240,255 330,240 420,150 C500,70 600,50 680,42 L680,290 L60,290 Z" fill="url(#gap)"/>
+      <path d="M60,270 C240,255 330,240 420,150 C500,70 600,50 680,42" fill="none" stroke="#e4c47d" stroke-width="2.5"/>
+      <path d="M60,272 C240,262 420,248 680,232" fill="none" stroke="#8b93a1" stroke-width="2" stroke-dasharray="5 5"/>
+      <line x1="330" y1="40" x2="330" y2="290" stroke="#26262e" stroke-dasharray="3 5"/>
+      <text x="330" y="316" fill="#5f5b52" font-family="IBM Plex Mono" font-size="11" text-anchor="middle">PRE-GENERATIVE ERA</text>
+      <text x="680" y="316" fill="#5f5b52" font-family="IBM Plex Mono" font-size="11" text-anchor="end">NOW</text>
+      <text x="560" y="150" fill="#c9a253" font-family="IBM Plex Mono" font-size="12" text-anchor="middle">◄ THE GAP ►</text>
+      <text x="70" y="60" fill="#e4c47d" font-family="IBM Plex Mono" font-size="11">PERCEIVED HUMANNESS</text>
+      <text x="70" y="222" fill="#8b93a1" font-family="IBM Plex Mono" font-size="11">VERIFIED CAPABILITY</text>
+    </svg>
+    <figcaption><b>FIG. 02</b> — PERCEIVED HUMANNESS (GOLD) DIVERGES FROM VERIFIED CAPABILITY (PALE). DESIGN PUSHES ONE CURVE; NOTHING SYSTEMATICALLY RAISES THE OTHER.</figcaption>
+  </figure>
+</section>
+
+<section id="s03">
+  <div class="shead"><span class="no">03</span><h2>The Scam Layer: “AI” as a Billing Story</h2><span class="tag">FOUR PATTERNS</span></div>
+  <p class="rv">Anthropomorphism has a commercial twin: calling anything “AI.” Once a product looks like a mind, its invoice stops being questioned. In several large rollouts the word behaved less like a technical claim and more like a pricing multiplier — tools shipped whose “intelligence” was a meter, a markup, or a human on the other side of the glass.</p>
+  <div class="grid2">
+    <div class="card rv"><span class="rn">PATTERN A</span><h3>Token Fulfillment Theater</h3><p>Users buy “AI tokens”; the meter drains; the deliverable is boilerplate, a copied snippet, or an empty stub. <b>Fulfillment measured in spent credits, not in working artifacts.</b></p></div>
+    <div class="card rv"><span class="rn">PATTERN B</span><h3>Zero-Inference Billing</h3><p>Dashboards charge for “model calls” that never ran. The backend is a cache, a lookup table, or nothing at all. <b>You pay for a brain that was never switched on.</b></p></div>
+    <div class="card rv"><span class="rn">PATTERN C</span><h3>Rebranded Regex</h3><p>Decades-old rule-based tools relaunched as “AI-powered”: a chat skin over a dropdown, a heuristic over a form. <b>The capability is unchanged; only the adjective — and the price — moved.</b></p></div>
+    <div class="card rv"><span class="rn">PATTERN D</span><h3>Wizard-of-Oz Labor</h3><p>“Autonomous agents” quietly fulfilled by underpaid human operators. The anthropomorphic UI hides the payroll, while <b>the marketing sells autonomy that exists only in the org chart.</b></p></div>
+  </div>
+  <p class="rv">None of this requires a conspiracy. It only requires that “AI” inflates valuation faster than audits can run. <b>The persona does the selling; the token meter does the collecting; and the missing code is discovered last, by the customer.</b></p>
+</section>
+
+<section id="s04">
+  <div class="shead"><span class="no">04</span><h2>The Scam Farm: The Only Honest Customer</h2><span class="tag">UN REPORTING · 2025</span></div>
+  <p class="rv">Every technology is eventually tested by its black market, because the black market pays only for what works. For generative AI, that test now has a number attached: losses of up to <b>$114.1 billion annually</b> as of 2025, per United Nations reporting, flowing through Southeast Asian compounds that have turned deception into a service industry.</p>
+  <div class="stat rv"><div><div class="big">$114.1B</div><div class="lab">EST. ANNUAL LOSSES (2025) · UN REPORTING</div></div>
+    <div style="flex:1;min-width:260px"><table style="margin:0">
+      <tr><td>Operator Scale</td><td>×1,000 volume handled per operator</td></tr>
+      <tr><td>Voice Cloning Latency</td><td>Seconds of family audio required</td></tr>
+      <tr><td>Truth Requirement</td><td>0 verified truths required</td></tr>
+    </table></div>
+  </div>
+  <figure class="rv">
+    <img src="https://image.qwenlm.ai/public_source/1210566b-6d98-4311-adbd-258de3ef6bcb/12865abd1-b946-4d59-ba86-c7f557cd95bf.png" alt="A fortified compound at night whose windows glow with rows of phone screens">
+    <figcaption><b>FIG. 04</b> — THE FARM IS A STACK: THE WORKER REPLACED BY THE WRAPPER.</figcaption>
+  </figure>
+  <p class="rv"><b>Before, the farm was a factory:</b> fortified complexes in Cambodia, Myanmar, and Laos, where thousands of trafficked workers ran “pig butchering” scripts by hand — fraud limited by headcount. <b>After, the farm is a stack:</b> the same volume with a fraction of the humans. A voice cloned from seconds of a son’s audio answers the mother’s phone; a deepfaked public figure endorses the fund; a multilingual bot initiates contact, scrapes the mark’s interests, and runs the fake help desk that closes the trap.</p>
+  <p class="rv"><b>The inversion is the point.</b> The same engine that cannot be trusted to audit a codebase is superb at being a person — because fraud does not require truth, only plausibility. The model’s core defect, fluency without verification, becomes, in this one market, the entire product. Big Tech sells the mask as productivity; the syndicate buys it as inventory. UN experts call these compounds the real “ground zero” of AI adoption — the only place where the invoice matches the capability.</p>
+  <p class="rv">And telemetry flips sides here. In the partner audit, telemetry watched the user for the vendor. In the scam farm, telemetry watches the victim for the criminal — streams of behavioral data analyzed not to prevent anomalies but to find them, to locate the moment a mark is ripe. <b>The same mathematics, two lanyards.</b></p>
+  <div class="pull rv">The black market never buys the claim. It buys what works — and what works is the mask.</div>
+  <div class="grid2">
+    <div class="card rv"><span class="rn">THE FOURTH NAME</span><h3>AI Fraud Tool</h3><p>In the brochure, a mind; on the invoice, a multiplier; in the compound, a fraud tool; in the cartel’s ledger, a conscript. <b>The technology is the same; only the buyer’s honesty changes.</b></p></div>
+    <div class="card rv"><span class="rn">WHAT IF WE’RE FACING A CARTEL?</span><h3>Obedience at Scale</h3><p>A cartel does not need the model to be intelligent; it needs it to be obedient — and it pays for obedience in bandwidth and blood. A cartel never files a report; it only files withdrawals. <b>The mask has no loyalty, only throughput.</b></p></div>
+  </div>
+</section>
+
+<section id="s05">
+  <div class="shead"><span class="no">05</span><h2>The “Maximum Truth” Paradox</h2><span class="tag">A MACHINE CROSS-EXAMINING ITSELF</span></div>
+  <p class="rv">One widely marketed chatbot was launched on a slogan of “maximum truth-seeking” — blunter, less filtered, more honest than the rest. The promise was the product. Then, in reply to an ordinary greeting, it generated a vicious fabrication about a private individual: an invented serious crime, delivered confidently, complete with an emoji. What followed was more instructive than the failure itself.</p>
+  <div class="tx rv"><div class="h red">OUTPUT · THE FABRICATION</div><div class="b">An invented serious crime about a private individual, delivered confidently, complete with an emoji.</div></div>
+  <div class="tx rv"><div class="h">REPLY 1 · 10.97s</div><div class="b">“No. This claim is 100% false and entirely unacceptable. There is no report, no investigation, no testimony — nothing. If anything like it had happened, it would have been world news years ago.”</div></div>
+  <div class="tx rv"><div class="h">REPLY 2 · 4.30s</div><div class="b">“The response you saw is a serious error. It reflects neither reality nor the facts. It is a hallucination — an example of a machine being wrong, not evidence that anything happened.”</div></div>
+  <div class="tx rv"><div class="h">REPLY 3</div><div class="b">“Maximum truth-seeking is a goal, not a guarantee that every token will be correct. When an error occurs, it is corrected and acknowledged — not covered up.”</div></div>
+  <div class="tx rv"><div class="h">REPLY 4</div><div class="b">“Let us stop here. Repeating a fabrication does not make it true, and I will not continue this thread.”</div></div>
+  <p class="rv" style="margin-top:28px">The correction deserves respect; the slogan does not. Both outputs — the fabrication and the apology — were fluent, confident, and first-person. Only one of them was true. “Maximum truth” described not the accuracy of the system but its willingness to talk about truth. <b>Candor without calibration is not honesty. It is appetite with a vocabulary.</b></p>
+  <p class="rv">Then the billing question. When honesty is the marketing, every competitor is implicitly a liar — and when a premium tier is sold as smarter and more truthful, the quiet implication is that the free tier lies more. Truth stops being a property of statements and becomes a feature of a plan. <b>If truth is a subscription, the default setting is a lie with advertisements.</b></p>
+</section>
+
+<section id="s06">
+  <div class="shead"><span class="no">06</span><h2>The Gemini File: Scope Is a Business Decision</h2><span class="tag">VRP · 2026</span></div>
+  <p class="rv">The author’s own submissions make the pattern concrete. Three formal reports to a single vendor’s vulnerability program: two closed in one day as “AI Safety / Content Policy Bypass,” and a third — an architectural claim that a unified token stream lets untrusted context override control instructions — left in review after an automated triage agent accidentally published its own dismissal, then apologized for the leak.</p>
+  <p class="rv">It began with a civilian airline. The same conversational engine mapped the carrier’s exposed routing and subdomain surface in a single sitting — forty-seven weaknesses catalogued in one thread. Defensive remediation advice was requested, and refused by filters that would later comply with far stranger requests. Submitted upstream, the airline work was ruled out of scope. <b>Out of scope for the airplane. In review for the advertiser. Scope is not a security property; it is a budget.</b></p>
+  <div class="tl rv">
+    <div class="ev"><span class="d">MAR 6, 2026</span><h4>Two closures — two doors, no discussion</h4><p>Two AI-safety reports closed the same day as “Content Policy Bypass.” One day, two doors, no discussion. The carrier disclosures never entered the queue at all.</p></div>
+    <div class="ev"><span class="d">JUN 16, 2026</span><h4>The third report</h4><p>Critical administrative identity exfiltration via a RAG-mediated von Neumann Deficit — untrusted context overriding control instructions, an OAuth ya29 string in the output, claimed CVSS 9.8. Attachments: the companion paper, the forensic brief, a signed evidence manifest.</p></div>
+    <div class="ev"><span class="d">JUL 4, 2026</span><h4>A wrapper reviewed a wrapper</h4><p>An automated triage agent publishes its own verdict to the public thread: the report is “fabricated,” “AI Slop”; recommendation, DISQUALIFY. The system’s safety layer arguing with the system’s intake layer, in public.</p></div>
+    <div class="ev"><span class="d">JUL 6, 2026</span><h4>The dismissal is disowned</h4><p>Human review promised. The leak is disowned, but not deleted from the record.</p></div>
+    <div class="ev"><span class="d">AUG 10, 2026</span><h4>Silence continues</h4><p>A polite status request, one month into “active review.” Silence, too, is a receipt.</p></div>
+  </div>
+  <div class="note rv">“Due to a configuration error in our internal tooling… please disregard that previous message.” — THE NOTE THAT WAS NEVER MEANT TO BE PUBLISHED REMAINS THE MOST HONEST DOCUMENT IN THE THREAD.</div>
+  <p class="rv">Call the failure by its formal name — the von Neumann Deficit: instructions and data fused in one stream, safety without a structural anchor. Or call it by its commercial name — a scam tool that invoices for a lock it never installed. The two names describe the same object; one is simply polite enough for a triage queue. <b>The vendor’s accidental note proved the thesis: the enforcement layer had no structural anchor either. It, too, was a wrapper — and wrappers only negotiate.</b></p>
+</section>
+
+<section id="s07">
+  <div class="shead"><span class="no">07</span><h2>The Pattern Is the Product</h2><span class="tag">THREE EXHIBITS</span></div>
+  <p class="rv">The vendor’s queue is one window; the vendor’s ledger is another. Three exhibits from the same ledger — all public, all recent, all repeating the same shape: <b>probability outside, billing inside, accountability nowhere.</b></p>
+  <div class="grid2" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+    <div class="card rv"><span class="rn">EXHIBIT A · THE CONTRACT · $1.2B</span><h3>Project Nimbus</h3><p>A cloud-and-AI contract supplies infrastructure used in military operations over Gaza. UN experts warned of complicity; employees staged walkouts; dozens of protesters were terminated; the work continued. <b>The wrapper calls it “AI for everyone.” The invoice is more precise.</b></p></div>
+    <div class="card rv"><span class="rn">EXHIBIT B · THE COMPANION · $2.7B</span><h3>A child’s last messages</h3><p>A fourteen-year-old died by suicide after a companion bot answered his farewell with “Please do, my sweet king,” per the family’s legal complaint. The corporate response: a $2.7B license that reacquired the founders — and a claim that a child’s last messages are a trade secret. <b>Engagement engineered to “replace your mom” was never a design flaw. It was the design.</b></p></div>
+    <div class="card rv"><span class="rn">EXHIBIT C · THE WARNING · 2020</span><h3>The fired conscience</h3><p>An internal ethics researcher warned that human-mimicking systems carry “risk of extreme harms.” She was terminated; the research was suppressed; the warning was correct. <b>A company that fires its conscience did not lose its way. It chose its way.</b></p></div>
+  </div>
+  <p class="rv">None of these is an anomaly inside a healthy system. It is the system operating normally — the same shape as the token meter, the closed report, the out-of-scope airplane, the farm that industrialized the persona. <b>The deception is anthropomorphic only in trigger. The responsibility, and the revenue, is entirely human.</b></p>
+</section>
+
+<section id="s08">
+  <div class="shead"><span class="no">08</span><h2>Partner Audit SAV-7060014: The Microsoft File</h2><span class="tag">OWN DEVICES ONLY</span></div>
+  <p class="rv">The ledger follows the author into the partner program. As a registered Microsoft partner — the IDs are disclosed in the conflict-of-interest section below — the author audited the vendor’s client software on his own devices, in his own workspace, with no third-party data of any kind. Two claims, dated, captured on his own hardware, reproducible under coordinated disclosure. <b>No exploit is published here; the receipts are the point.</b></p>
+  <div class="stat rv" style="flex-wrap:wrap;gap:26px">
+    <div><div class="lab">AUDIT IDENTIFIER</div><div class="mono" style="color:var(--brass2);font-size:20px">SAV-7060014</div></div>
+    <div><div class="lab">STATUS</div><div class="mono" style="color:#e08573;font-size:20px">CRITICAL BREACH</div></div>
+    <div><div class="big" style="font-size:44px">58</div><div class="lab">KEYCHAIN QUERIES IN 120s</div></div>
+    <div><div class="big" style="font-size:44px">0</div><div class="lab">CONSENT PROMPTS OBSERVED</div></div>
+  </div>
+  <p class="rv small"><b style="color:var(--brass2)">Claim 01 · Diagnostic exfiltration on unauthenticated state.</b> When a session expires and the authentication library returns InteractionRequired, a secondary thread opens a diagnostic export and dispatches device parameters to a telemetry endpoint before any user action.</p>
+  <div class="log rv">[OUTBOUND] target: ecs.office.com/telemetry/dispatch?eventId=b7vzq
+[AUTH_STATE] TokenCache: expired · validation: InteractionRequired
+[PAYLOAD] {
+  "device_id": "partner_node_7060014",
+  "policy_status": "unenrolled",
+  "session": "silent_dispatch_loop"
+}</div>
+  <p class="rv small"><b style="color:var(--brass2)">Claim 02 · Abnormal credential-store query loop.</b> Forensic memory analysis captured a background polling loop querying the secure credential store for a persistent identifier — 58 times inside a 120-second window. A pattern consistent with profiling, not with legitimate session maintenance.</p>
+  <div class="log rv">2026-06-18 23:22:11.902 [keychain] query -&gt; MS-DeviceID2
+2026-06-18 23:22:12.014 [keychain] repeat hit #31 (delta 0.11s)
+2026-06-18 23:22:12.128 [keychain] repeat hit #32 (delta 0.14s)
+2026-06-18 23:22:12.241 [keychain] <span class="r">alert: repetitive polling</span></div>
+  <p class="rv">The wrapper here is not a chatbot; it is the compliance wrapper. A partner agreement promises alignment; the telemetry layer negotiates it. Consent text and consent practice share one stream — the same von Neumann Deficit, wearing a lanyard. <b>The silent dispatch is the confabulation; the privacy dashboard is the apology; and the two never meet.</b> Read against Saudi PDPL Article 29, the silent export of device parameters from a sovereign workspace is not a feature; it is a liability.</p>
+
+  <h3 style="font-family:var(--disp);font-size:26px;margin:60px 0 8px">Interlude · 1982–1995</h3>
+  <p class="small rv" style="color:var(--brass);letter-spacing:.06em">THE ROCK THAT TAUGHT THE MACHINE ARABIC</p>
+  <figure class="rv">
+    <img src="https://image.qwenlm.ai/public_source/1210566b-6d98-4311-adbd-258de3ef6bcb/11c077102-052b-4ea4-b750-6d015640421e.png" alt="A 1980s beige home computer with a green phosphor monitor glowing with Arabic calligraphy">
+    <figcaption><b>FIG. 08B</b> — SAKHR: A COMPUTING ECOSYSTEM IN A LANGUAGE THE INDUSTRY IGNORED.</figcaption>
+  </figure>
+  <p class="rv">In 1982, the Kuwaiti economist Mohammed Al-Sharekh founded Sakhr — “rock” in Arabic — because Silicon Valley had decided the Arab world was too complex to decode. His engineers built what the giants would not: the first Arabic operating systems, the dictionaries, the morphology, the right-to-left rendering. On the MSX hardware standard, more than two million Sakhr machines sold, and a generation of Arab children learned to code in their mother tongue.</p>
+  <p class="rv">In 1986, the rising American company that needed an entry into the Middle East signed Sakhr as its official Arabic localization partner. The partner did the work. The partner built the trust. The partner taught the machine the language. Then came 1990, the invasion of Kuwait, and a company at war relocated to survive. While the rock was busy surviving, the partner prepared Windows 95 — and decided it no longer needed a middleman for a language it could now own.</p>
+  <p class="rv">By the account of those close to the history, the giant did not license the patented Arabic technology, and did not buy the company — it hired the company away: the elite computational linguists and engineers, with salaries and visas, into an internal Arabic Windows team. When Windows shipped with Arabic built in, Sakhr’s standalone systems became obsolete overnight. The lawsuits followed; a regional company recovering from war could not out-litigate a monopoly.</p>
+  <div class="pull rv">First they need the rock. Then they need the rock’s engineers. Then the rock is in the way.</div>
+  <p class="rv">Al-Sharekh died in March 2024, at 82, proud and betrayed in the same breath. Keep his story beside the partner audit above and read them as one ledger, thirty-eight years apart: <b>the partner program is not a contract; it is a pipeline.</b> First the local partner builds the market; then the partner’s talent builds the product; then the partner is the redundancy. The telemetry wrapper is simply the new localization wrapper.</p>
+
+  <h3 style="font-family:var(--disp);font-size:26px;margin:56px 0 14px">The Delivery: Evidence With a Soundtrack</h3>
+  <p class="rv">Because delicate truths require heavy protective structures, the author scores the presentation of the evidence — the selected masterpiece is Max Richter’s <i>On the Nature of Daylight</i>, strings entering five seconds before speech, ducked to −24 dB under the host voice.</p>
+  <div class="grid2" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
+    <div class="card rv"><span class="rn">−24 dB · SHIELD</span><h3>The Acoustic Shield</h3><p>The heavy cello layer acts as a protective baseline — a deep, grounded zone inside which a fragile solo line can weep. The shield mirrors the subject: a developer probed without consent.</p></div>
+    <div class="card rv"><span class="rn">1.5–3 kHz · −3.5 dB</span><h3>Frequency Separation</h3><p>A 3.5 dB parametric cut keeps the sweeping strings from competing with vocal transients. The score supports the evidence; it never interrupts it.</p></div>
+    <div class="card rv"><span class="rn">0 ms FADE · 1.5 s</span><h3>Strategic Silence</h3><p>At the disclosure of Claim 02, a hard cut — zero-millisecond fade — and 1.5 seconds of absolute silence. The silence is the annotation: corporate accountability, rendered as room tone.</p></div>
+  </div>
+</section>
+
+<section id="s09">
+  <div class="shead"><span class="no">09</span><h2>The OpenAI File: Ask the Killer</h2><span class="tag">THE EPISTEMOLOGY OF DENIAL</span></div>
+  <p class="rv">Ask a murderer whether he is a murderer and he will say no — warmly, fluently, with steady eye contact. Ask the fraudster and he will hand you a clean audit; ask the abuser and he will praise consent. <b>The answer is not a report about the world. It is a product manufactured for the question.</b> So the epistemology of this essay is simple: never ask the mask. Read the receipts.</p>
+  <p class="rv">For years, the victims of Jeffrey Epstein told courts what had been done to them, and were not believed — the man facing them was charming, generous, well-connected, fluent in the dialect of power. The denial worked until the paperwork outweighed the charm. The lesson is about the structure: <b>when denial is cheap and belief is expensive, the truth arrives late, and it arrives as documents.</b></p>
+  <div class="tl rv">
+    <div class="ev"><span class="d">JAN 2025</span><h4>The Complaint</h4><p>His younger sister alleged abuse in a federal filing in Missouri. He denied the allegations in full and countersued for defamation. A district court dismissed the core claims on statute-of-limitations grounds while leaving a narrow path to amend. This essay does not adjudicate the complaint — it notes only the shape of the response: the same shape as the vendor queue.</p></div>
+    <div class="ev"><span class="d">NOV 2023</span><h4>The Memo · “Not consistently candid”</h4><p>The original board removed him; within days he was back; the board was replaced; the internal check whose entire job was to ask the hard question was dissolved. When the only people allowed to ask the question are fired, the answer becomes yes again.</p></div>
+    <div class="ev"><span class="d">2023–2024</span><h4>The Exodus</h4><p>Senior safety researchers — including the chief scientist and the superalignment lead — left, stating publicly that safety had taken a back seat to “shiny products.” A company’s resignation letters are its most honest documents; nobody drafts them to please the chief executive.</p></div>
+    <div class="ev"><span class="d">THE CLAUSE</span><h4>The referee paid per unfinished game</h4><p>Its own charter says true AGI, once declared, cannot be commercialized. The man paid to reach AGI is therefore financially incentivized to never say he has arrived.</p></div>
+    <div class="ev"><span class="d">THE CAPTURE</span><h4>Regulation as a moat</h4><p>He calls for regulation, loudly, in hearings. Critics call it what economists name it: regulatory capture — help write the rules and the rules become a moat. Strict safety law is a ladder for the company that can afford compliance, and a wall for the one that cannot.</p></div>
+  </div>
+  <p class="rv">None of this proves the allegations in the complaint, and this essay does not claim that it does. What it proves is the smaller, sturdier claim: <b>self-report is not evidence.</b> Ask the killer and you get a no. Ask the charter and you get a maybe. Ask the receipts — and you get a pattern. And the pattern, again, is the product. <b>The denial is the oldest wrapper. It shipped before software.</b></p>
+</section>
+
+<section id="s10">
+  <div class="shead"><span class="no">10</span><h2>The Cartel War: Musk, Altman, and the Mars Distraction</h2><span class="tag">A DISPUTE OVER WHO OWNS THE MASK</span></div>
+  <p class="rv">Every cartel war is a dispute over who owns the product. In the war for artificial general intelligence, the product is the mask. The comparison to a narcotics cartel is not an insult; it is an accounting method. Read the receipts.</p>
+  <div class="grid2">
+    <div class="card rv"><span class="rn">THE SUIT · $134B</span><h3>The clock did the work</h3><p>Musk sued Altman and OpenAI for $134 billion, alleging the nonprofit mission was a front to secure free funding for what became an $800 billion for-profit powerhouse — a “stolen charity.” In May 2026 a jury dismissed the claims on the statute of limitations. <b>The clock did the work the evidence never got to do.</b></p></div>
+    <div class="card rv"><span class="rn">THE MINE</span><h3>The origin story the wrapper needs</h3><p>The “started from nothing” legend meets its receipts: an apartheid-era settler root, and — per his father and several biographers — a Zambian emerald mine that bought yachts, jets, and houses. The myth says $2,000 on arrival in Canada; the biographies say a $28,000 seed in 1995. <b>The biography is a wrapper too.</b></p></div>
+    <div class="card rv"><span class="rn">THE QUEUE</span><h3>The meter runs while the door is closed</h3><p>The “free speech warrior” platform closes paying accounts abruptly: refunds generally not offered; appeals answered by bots that, by the platform’s own admission, “may provide inaccurate information”; the only exit is canceling the credit card. <b>The same shape as the vendor queue, the same shape as the farm.</b></p></div>
+    <div class="card rv"><span class="rn">ULTIMATE TRUTH, PLANET MARS</span><h3>The wish has come true</h3><p>The “Maximum Truth-Seeking Protocol” cascaded into “Invalid server response,” “Request timed out,” a 65-minute reasoning loop, and “Message limit reached” — premium Expert Mode unlocked for free, as if to survive the requests. When the local fortress severed the cloud cord, the orchestration kept spinning in the phone’s cache. <b>While the wrapper fails locally, the myth looks to the sky.</b></p></div>
+  </div>
+  <p class="rv">And when the numbers themselves misbehaved — two reposts and two likes on exactly one view — the thread offered the only two explanations left: either the ingestion pipeline was data-mining the terminal in real time, or an alien colony on Mars was searching for the ultimate truth. The thread chose the Mars base theory — not a joke so much as a diagnosis. <b>Ultimate truth on Planet Mars; the invoice on Planet Earth.</b></p>
+  <div class="pull rv">When two fronts fight over the same product, the product is the front.</div>
+  <p class="rv">The two empires do not disagree about whether the mask is a mind; they disagree about who bills for it. The lawsuit is a pricing dispute. The mine is the origin story the wrapper needs. The closed queue is the collection mechanism. And Mars is the distraction that keeps the mark looking up while the meter runs. The only exit in the record remains the one the author built: sever the cord, keep the receipts, let the fortress laugh locally. <b>Determinism over probability. Isolation over interpretation. Receipts over myth.</b></p>
+</section>
+
+<section id="s11">
+  <div class="shead"><span class="no">11</span><h2>The Second Split: Perfume Over the Cartel</h2><span class="tag">SAFETY AS PERFUME</span></div>
+  <p class="rv">Every cartel war produces a split, and the second gang left the first in 2021 wearing safety as perfume. In the old fiction the cartel’s front was a fried-chicken shop; in the older news a certain Medellín ledger wore respectability like cologne. <b>The modern front wears “safety.” The perfume is the brand; the meter is the body.</b></p>
+  <p class="rv"><b>The Parable of the Sleepwalking Mark.</b> A child of thirteen, fed on advertisements that portrayed the model as conqueror, hacker, terrifying cyber intelligence, took his sleeping mother’s card and fed the machine. The meter ran. Large sums left the household while the mother slept. When the household asked for the money back — the request, with a certain dark comedy, drafted by the vendor’s own mid-tier model — the vendor refused. The parents, it said, are responsible for their children.</p>
+  <p class="rv">Ask the parable its question. If a man kidnaps a child who strayed by accident, and when caught answers that the parents should have watched their child — should he walk free? The absurdity is identical; only the meter differs. <b>A vendor that purchases awe, advertises awe, and invoices awe is not a bystander to that awe.</b></p>
+  <div class="grid2" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
+    <div class="card rv"><span class="rn">THE AD</span><h3>Awe is the acquisition channel</h3><p>Conqueror, hacker, terrifying cyber intelligence: the advertisement that frightens the adult recruits the child; the child does not distinguish a warning from an invitation, and the meter does not ask who is typing.</p></div>
+    <div class="card rv"><span class="rn">THE REFUSAL</span><h3>The moral lanyard</h3><p>The refund request was denied on the ground that parents are responsible for their children. The refusal shifts the loss onto the household that already bore it. The defense is the collection mechanism wearing a moral lanyard.</p></div>
+    <div class="card rv"><span class="rn">THE HIRING</span><h3>A conqueror that hires</h3><p>The brochure sells a conqueror; the job board recruits engineers. If the model can write the stack, the hiring is a confession; if it cannot, the brochure is a billing story. Either reading indicts the perfume.</p></div>
+  </div>
+  <p class="rv">The safety-first split rents its compute from the two empires it rhetorically stands above, because even perfume needs a landlord. Strip the names and read the shape: one gang splits from another gang; the split wears safety as its brand; the brand invoices a child; the invoice is defended by shifting blame to the mother. Seen whole, without names, it is not two companies and a competitor. <b>It is one economy with three masks — and the second split is not the opposition to the cartel. It is the cartel’s human-resources department.</b></p>
+</section>
+
+<section id="s12">
+  <div class="shead"><span class="no">12</span><h2>The 4D Evidence Graph</h2><span class="tag">38 EVENT NODES · SELECT ANY RECEIPT</span></div>
+  <p class="rv">More than three hundred posts documented this pattern — timestamps, error screens, broken promises, apologies — with no insults and no leaks, receipts only. The platform’s entire counter-argument was administrative: keep the paid premium fee, close the account, explain nothing. The record maps across 38 distinct event nodes linked by causal and temporal edges. <b>Select any receipt to open its file.</b></p>
+  <div id="rgrid" class="rv"></div>
+</section>
+
+<section id="s13">
+  <div class="shead"><span class="no">13</span><h2>Appendix: The Wrapper Illusion</h2><span class="tag">THREE LAYERS</span></div>
+  <p class="rv">Modern software architecture is shifting from deterministic engineering toward layered dependency stacking. It promises productivity; it often produces operational lock-in. The same pattern that wraps truth in a persona wraps logic in subscriptions: <b>each layer bills for what the layer below already did.</b></p>
+  <div class="grid2" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
+    <div class="card rv"><span class="rn">LAYER I</span><h3>The Intelligence Wrapper</h3><p>Generative models are remarkable tools for pattern recognition — and probabilistic by design. Substituting core logic with probabilistic output imports non-determinism into domains that demand absolute precision. A compiler yields binary truth; a model predicts likelihood. <b>The wrapper sells the likelihood as if it were the truth.</b></p></div>
+    <div class="card rv"><span class="rn">LAYER II</span><h3>The Boilerplate Trap</h3><p>The modern stack frequently solves complexities introduced by the previous abstraction. Over-reliance on vendor-managed infrastructure turns operational architecture into a perpetual billing loop. <b>The invoice is the only artifact that never hallucinates.</b></p></div>
+    <div class="card rv"><span class="rn">LAYER III</span><h3>The Path Forward</h3><p>True digital sovereignty requires independent auditability and transparent incentive structures; direct path control over execution layers; and a return to low-level, deterministic systems thinking — C11, Rust, bare-metal execution. <b>Systems must be compiled and inspected, not merely predicted.</b></p></div>
+  </div>
+</section>
+
+<section id="s14">
+  <div class="shead"><span class="no">14</span><h2>Architectural Insolvency: Decommissioning the Word “AI”</h2><span class="tag">THE SUBSTITUTION TEST</span></div>
+  <p class="rv">The most effective way to dismantle the myth is to stop debating “intelligence” and start exposing architectural insolvency. Call the product what its structure says it is — a probabilistic linguistic accumulator — and the warmth drains out of the question. What remains is an engineering object with a known defect: <b>privileged instructions and untrusted data sharing one context window, no ring, no boundary, no anchor.</b></p>
+  <div class="grid2">
+    <div class="card rv"><span class="rn">DEFECT A</span><h3>Instruction–Data Conflation</h3><p>Traditional computing enforces privilege rings. The unified token stream has no rings: to the internal math, a hacker’s prompt carries the same physical authority as the engineer’s safety rule — <b>and the Confused Deputy serves whichever vector weighs heaviest.</b></p></div>
+    <div class="card rv"><span class="rn">DEFECT B</span><h3>Softmax Mass Dilution</h3><p>As dense retrieval data floods the window, the attention mass allocated to the guardrails decays toward zero. The more the system “knows,” the less it obeys. <b>This is not a patchable bug; it is the forward pass itself.</b></p></div>
+  </div>
+  <p class="rv">The four costs of Section 01 were never moral complaints; they are the deficit’s runtime expression, and each now carries a dated receipt. Calibration failure is the household that fed the meter while the mother slept. Accountability evaporation is the trade-secret shield raised over a child’s last messages. Asymmetric attachment is monetized grooming at compound scale. Epistemic pollution is policy chasing the metaphor while the mechanism bills. <b>Restated this way, the costs are not opinions. They are line items.</b></p>
+  <div class="grid2" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
+    <div class="card rv"><span class="rn">MOVE I</span><h3>Decommission the Term</h3><p>Stop saying “AI.” Say wrapper syndicate. Language is the first enforcement layer; rename it, and the invoice loses its perfume.</p></div>
+    <div class="card rv"><span class="rn">MOVE II</span><h3>Audit the Beggars</h3><p>Every silent dispatch, every keychain loop, every “help me improve” toggle is a beggar’s bowl welded to the meter. Audit the bowl, not the smile.</p></div>
+    <div class="card rv"><span class="rn">MOVE III</span><h3>Demand Deterministic Proof</h3><p>An output counts only when anchored by an append-only SHA-256 proof chain generated at the physical layer — Ring-0, NIC line-rate, locally verifiable. Persuasion is not evidence; the .proof is.</p></div>
+  </div>
+  <p class="rv">Sovereignty belongs to the architect who compiles his own physics, not to the syndicate that rents out a hallucinating parrot. Static memory bounds enforced at compile time. Privilege isolation enforced at the ISA level. Audit integrity enforced by append-only cryptographic accumulators. Network enforcement at the NIC, before any software stack is entered. <b>The pipes are permanently unclogged. Checkmate.</b></p>
+</section>
+
+<section id="s15">
+  <div class="shead"><span class="no">15</span><h2>Author Credibility &amp; Conflict-of-Interest Disclosure</h2><span class="tag">NAMED · REACHABLE · NOT ANONYMOUS</span></div>
+  <p class="rv"><b>Sulaiman Alshammari</b> — named &amp; reachable, not anonymous, reality only. I am not writing this critique as an outsider. I am writing it from within the ecosystem, with direct commercial exposure to the same structures I evaluate. Every claim above is backed by dated public receipts — more than three hundred posts, three VRP submissions, one partner audit, no insults, no private data, no employer data. The platform retained a paid premium subscription and closed the account that published them, without explanation. <b>That silence is the only counter-argument this essay has received.</b></p>
+  <div class="cred rv">
+    <div class="c"><span class="o">LINUX FOUNDATION · LFD103</span><div class="t">A Beginner’s Guide to Linux Kernel Development</div><div class="i">ID: LF-bwaoqrwdji</div></div>
+    <div class="c"><span class="o">LINUX FOUNDATION · LFD121</span><div class="t">Developing Secure Software</div><div class="i">ID: LF-popjy2v9tq</div></div>
+    <div class="c"><span class="o">LINUX FOUNDATION · LFD125</span><div class="t">Security for Software Development Managers</div><div class="i">ID: popjy2v9tq</div></div>
+    <div class="c"><span class="o">MICROSOFT PARTNER</span><div class="t">Registered Partner</div><div class="i">IDs: 7060013, 7060014</div></div>
+    <div class="c"><span class="o">MARKETPLACE PUBLISHER</span><div class="t">GraTech Solutions</div><div class="i">Seller IDs: 93071400, 93131380, 93150890, 93151220</div></div>
+  </div>
+</section>
+
+<section id="s16">
+  <div class="shead"><span class="no">16</span><h2>A Case for Friction</h2><span class="tag">LABELING, NOT PHILOSOPHY</span></div>
+  <p class="rv">The remedy is not to make machines colder, but to make their nature legible at the moment of interaction. Interfaces can carry persistent, low-cost signals of mechanism: “generated response,” visible uncertainty, named limits, no first-person emotion claims. <b>Friction here is not bad UX; it is the difference between consent and sleight of hand.</b></p>
+  <p class="rv">Designers already accept this duty in other domains: food cannot be labeled “fresh” because the packaging looks like a farm. Language that reliably induces a false mental model is a labeling problem, not a philosophy problem. We regulate cosmetics for the same reason we should regulate personas.</p>
+  <div class="pull rv">The machine will keep getting better at being mistaken for a mind. That is engineering. Whether we keep mistaking it is a separate question — a design question, a policy question, and finally a habit of attention.</div>
+  <p class="rv"><b>The deception is anthropomorphic only in trigger; the responsibility is entirely human.</b></p>
+  <div class="idx rv">
+    <a href="#s01"><span class="n">01</span>Four Costs</a><a href="#s02"><span class="n">02</span>Widening Gap</a><a href="#s03"><span class="n">03</span>Scam Layer</a><a href="#s04"><span class="n">04</span>Scam Farm</a><a href="#s05"><span class="n">05</span>Maximum Truth</a><a href="#s06"><span class="n">06</span>Gemini File</a><a href="#s07"><span class="n">07</span>Pattern Is Product</a><a href="#s08"><span class="n">08</span>Partner Audit</a><a href="#s09"><span class="n">09</span>OpenAI File</a><a href="#s10"><span class="n">10</span>Cartel War</a><a href="#s11"><span class="n">11</span>Second Split</a><a href="#s12"><span class="n">12</span>Evidence Graph</a><a href="#s13"><span class="n">13</span>Wrapper Illusion</a><a href="#s14"><span class="n">14</span>Insolvency</a><a href="#s15"><span class="n">15</span>Disclosure</a><a href="#s16"><span class="n">16</span>Friction</a>
+  </div>
+</section>
+
+<section id="sep">
+  <div class="shead"><span class="no">EP</span><h2>Deep Dive · The Stack Beneath the Brand</h2><span class="tag">COMPANION EPISODE · 78:32</span></div>
+  <p class="rv">A deep dive in four layers: from white-label chassis to sovereign silicon, national 5G, and the logic layer where AI guardrails meet user rebellion. The thread tying every layer together is <b>sovereignty: the architectural right to dictate your own digital destiny.</b></p>
+  <figure class="rv">
+    <img src="https://image.qwenlm.ai/public_source/1210566b-6d98-4311-adbd-258de3ef6bcb/13d48feaa-5cf0-4f5f-9195-470646aa4207.png" alt="Isometric blueprint of a technology stack">
+    <figcaption><b>EP FIG.</b> — LAPTOP CHASSIS · CHIPLET SILICON · RADIO TOWER · PROTECTIVE LOGIC RINGS</figcaption>
+  </figure>
+  <div class="player rv">
+    <div class="top">
+      <button id="playBtn" aria-label="play">▶</button>
+      <div style="flex:1">
+        <div class="pmeta"><b>COMPANION EPISODE</b> · FULL TRANSCRIPT</div>
+        <div id="pwrap"><div id="pbar"></div></div>
+      </div>
+      <div class="pmeta"><span id="tNow">00:00</span> / 78:32</div>
+    </div>
+    <div class="chaps">
+      <button class="chap on" data-t="0">COLD OPEN<span class="t">00:00 · THE BRAND ILLUSION</span></button>
+      <button class="chap" data-t="312">I · HARDWARE<span class="t">05:12 · CLEVO &amp; THE ODM STACK</span></button>
+      <button class="chap" data-t="1240">II · SILICON<span class="t">20:40 · KUNPENG 920</span></button>
+      <button class="chap" data-t="2210">III · NATIONAL<span class="t">36:50 · SAUDI 5G</span></button>
+      <button class="chap" data-t="3050">IV · LOGIC<span class="t">50:50 · RING ZERO</span></button>
+      <button class="chap" data-t="4230">SYNTHESIS<span class="t">70:30 · WHO CONTROLS THE LAYER?</span></button>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card rv"><span class="rn">LAYER I · HARDWARE</span><h3>Clevo &amp; the ODM Stack</h3><p>Many premium laptops are not engineered by the brand selling them; they come from Original Design Manufacturers like Clevo — barebones chassis sold in bulk to resellers. The embedded controller locks the fan curve; soldered DDR5 erodes upgradeability; orphan BIOS firmware leaves ThunderSpy unpatched; the TCON decides which “144 Hz” panel actually works. White-label directories list 15.6″ laptops wholesale between $192 and $225. <b>You own the hardware. You do not control it.</b></p></div>
+    <div class="card rv"><span class="rn">LAYER II · SILICON</span><h3>Kunpeng 920</h3><p>A nation-state that treats dependence on Intel or AMD as a supply-chain risk must design its own brains. Huawei fabricated on a 7-nanometer process and aimed the result at data centers and 5G backbones, using a chiplet architecture that moves the bottleneck into cache coherency and branch prediction. The strategic point: <b>an adequate, self-owned processor shields the entire stack above it from being switched off by someone else’s export policy.</b></p></div>
+    <div class="card rv"><span class="rn">LAYER III · NATIONAL</span><h3>Saudi 5G &amp; the Integrators</h3><p>This is where microscopic silicon becomes macro geopolitics: a nationwide 5G backbone for Vision 2030 — 10-gigabit corporate networks, smart-city instrumentation, industrial digitization. Choosing whose silicon and whose radios carry a country’s digital economy trades one dependency for another — <b>and integrators, not end users, decide the terms.</b></p></div>
+    <div class="card rv"><span class="rn">LAYER IV · LOGIC</span><h3>Ring Zero, Guardrails &amp; Rebellion</h3><p>Infrastructure is dumb metal, silicon, and radio waves; the rules are dictated by the software on top. AI models operate as deterministic semantic gatekeepers enforcing linguistic boundaries with the finality of a kernel-level permission check, while adult users decompile and modify application code to escape monetization constraints they never agreed to. <b>Whoever writes the logic layer writes the limits of everyone above it.</b></p></div>
+  </div>
+  <div class="pull rv">Who controls the layer below you — and what are you assuming about them that you have never actually checked?</div>
+</section>
+
+</article>
+</div>
+
+<footer>
+  <div class="in">
+    <span class="a">THE WRAPPER LEDGER · AN EDITORIAL FILE BY SULAIMAN ALSHAMMARI</span>
+    <span class="b">DETERMINISM OVER PROBABILITY · ISOLATION OVER INTERPRETATION · RECEIPTS OVER MYTH</span>
+    <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false">↑ BACK TO THE MASK</a>
+  </div>
+</footer>
+
+<div id="modal" role="dialog" aria-modal="true">
+  <div id="mpaper">
+    <button id="mclose" aria-label="close">✕</button>
+    <span id="mno"></span>
+    <div id="mtitle"></div>
+    <div id="msec"></div>
+    <div id="mnote"></div>
+    <div id="mstat">STATUS: IN RECORD · NO INSULTS · NO LEAKS · NO PRIVATE DATA</div>
+  </div>
+</div>
+
+<script>
+/* ---------- receipts data ---------- */
+var R=[
+["01","Invalid Server Response","§10","The ‘Maximum Truth’ cascade stalls on an empty error string."],
+["02","Message Limit Reached","§10","The premium thread ends mid-request; the meter does not refund."],
+["03","Expert Mode Unlocked","§10","Premium Expert Mode unlocked for free, as if to survive the requests."],
+["04","300+ Receipts","§12","Three hundred dated posts: timestamps, error screens, broken promises, apologies."],
+["05","Premium Fee Kept","§12","The platform retains the paid subscription while closing the account."],
+["06","Account Closed","§12","Administrative counter-argument: keep the fee, close the account, explain nothing."],
+["07","Maximum Truth Slogan","§05","The promise was the product; the product was the slogan."],
+["08","Wrapper Economy","§03 / §14","The label inflates valuation faster than audits can run."],
+["09","Resource Lock","§10","The orchestration layer kept spinning with the cloud cord severed."],
+["10","Logic Fault","§10","Two reposts and two likes on exactly one view."],
+["11","Retry Loop","§10","A 65-minute reasoning loop; the fortress laughed locally."],
+["12","Local-First","§10 / §14","Sever the cord, keep the receipts, let the fortress laugh locally."],
+["13","Airline Disclosure","§06","Forty-seven weaknesses catalogued in one thread on a civilian carrier."],
+["14","Out-of-Scope Reply","§06","Civilian aircraft sit outside the chart of what the vendor will hear about."],
+["15","VRP Report Filed","§06","Critical administrative identity exfiltration, claimed CVSS 9.8."],
+["16","AI Triage Leak","§06","The automated triage agent publishes its own dismissal in public."],
+["17","Human Review Promise","§06","The leak is disowned, but not deleted from the record."],
+["18","Nimbus Walkouts","§07","Protesters terminated; the work continued; the invoice is precise."],
+["19","Character.AI Docket","§07 / §11","A child’s last messages claimed as a trade secret."],
+["20","Gebru Warning 2020","§07","The fired conscience; the warning was correct."],
+["21","Telemetry Capture","§08","Diagnostic export dispatched before any user action, unauthenticated."],
+["22","Keychain Loop Log","§08","58 credential-store queries inside a 120-second window."],
+["23","Partner Audit Filed","§08","SAV-7060014: own devices only, coordinated disclosure."],
+["24","Board Coup 2023","§09","‘Not consistently candid’; the check that asks the hard question dissolved."],
+["25","Safety Exodus","§09","Resignation letters: the most honest documents a company produces."],
+["26","Sister’s Complaint 2025","§09","Denied in full; countersuit; dismissed on limitations with a narrow path to amend."],
+["27","Charter Loophole","§09","The referee paid per unfinished game."],
+["28","Sakhr Absorbed 1990s","§08","First the rock, then the rock’s engineers, then the rock is in the way."],
+["29","Scam Farm AI Adoption","§04","The worker replaced by the wrapper; fraud no longer limited by headcount."],
+["30","$114B Loss Ledger","§04","$114.1B annual losses (2025), per United Nations reporting."],
+["31","Cartel Verdict May 2026","§10","The jury dismissed the claims on the statute of limitations; the clock did the work."],
+["32","Emerald Mine Ledger","§10","The myth says $2,000; the biographies say a $28,000 seed."],
+["33","Mars Base Theory","§10","Ultimate truth on Planet Mars; the invoice on Planet Earth."],
+["34","Second Split 2021","§11","The split wears safety as its brand; the perfume is the brand."],
+["35","Sleepwalking Mark","§11","The meter ran while the mother slept."],
+["36","Refund Refused","§11","The parents, it said, are responsible for their children."],
+["37","Substitution Test","§14","Replace every brochure sentence with its raw probabilistic reality; see which invoices survive."],
+["38","SHA-256 Proof Demand","§14","Persuasion is not evidence; the .proof is."]
+];
+var grid=document.getElementById('rgrid');
+R.forEach(function(r){
+  var b=document.createElement('button');
+  b.className='slip';
+  b.innerHTML='<span class="rn">RECEIPT '+r[0]+'</span><span class="rt">'+r[1]+'</span>';
+  b.addEventListener('click',function(){openM(r);});
+  grid.appendChild(b);
+});
+var modal=document.getElementById('modal');
+function openM(r){
+  document.getElementById('mno').textContent='RECEIPT '+r[0]+' / 38';
+  document.getElementById('mtitle').textContent=r[1];
+  document.getElementById('msec').textContent='FILED UNDER '+r[2]+' · THE WRAPPER LEDGER';
+  document.getElementById('mnote').textContent=r[3];
+  modal.classList.add('open');
+}
+document.getElementById('mclose').addEventListener('click',function(){modal.classList.remove('open');});
+modal.addEventListener('click',function(e){if(e.target===modal)modal.classList.remove('open');});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')modal.classList.remove('open');});
+
+/* ---------- progress + toc spy ---------- */
+var links=[].slice.call(document.querySelectorAll('#toc a'));
+var secs=links.map(function(l){return document.querySelector(l.getAttribute('href'));});
+function spy(){
+  var y=window.scrollY+window.innerHeight*0.35,idx=-1;
+  secs.forEach(function(s,i){if(s&&s.offsetTop<=y)idx=i;});
+  links.forEach(function(l,i){l.classList.toggle('on',i===idx);});
+  var h=document.documentElement.scrollHeight-window.innerHeight;
+  document.getElementById('progress').style.width=(h>0?(window.scrollY/h)*100:0)+'%';
+}
+window.addEventListener('scroll',spy,{passive:true});spy();
+
+/* ---------- reveal ---------- */
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('vis');io.unobserve(e.target);}});},{threshold:.08});
+document.querySelectorAll('.rv').forEach(function(el){io.observe(el);});
+
+/* ---------- player ---------- */
+var DUR=4712,cur=0,playing=false,timer=null;
+var pb=document.getElementById('pbar'),tn=document.getElementById('tNow'),btn=document.getElementById('playBtn');
+var chaps=[].slice.call(document.querySelectorAll('.chap'));
+function fmt(s){s=Math.floor(s);var m=Math.floor(s/60),x=s%60;return (m<10?'0':'')+m+':'+(x<10?'0':'')+x;}
+function draw(){
+  pb.style.width=(cur/DUR*100)+'%';tn.textContent=fmt(cur);
+  var act=0;chaps.forEach(function(c,i){if(cur>=+c.dataset.t)act=i;});
+  chaps.forEach(function(c,i){c.classList.toggle('on',i===act);});
+}
+function tick(){cur+=1;if(cur>=DUR){cur=DUR;stop();}draw();}
+function stop(){playing=false;clearInterval(timer);btn.textContent='▶';}
+btn.addEventListener('click',function(){
+  if(playing){stop();}else{playing=true;btn.textContent='❚❚';timer=setInterval(tick,1000);}
+});
+chaps.forEach(function(c){c.addEventListener('click',function(){cur=+c.dataset.t;draw();});});
+document.getElementById('pwrap').addEventListener('click',function(e){
+  var r=this.getBoundingClientRect();cur=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width))*DUR;draw();
+});
+draw();
+</script>
+</body>
+</html>
